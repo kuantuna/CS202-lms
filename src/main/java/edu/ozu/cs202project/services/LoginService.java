@@ -42,4 +42,19 @@ public class LoginService
         connection.update("INSERT INTO AuthenticationSystem (UserID, Usernames, Passwords) VALUES (?, ?, ?)",
                 new Object[]{userID , username, password});
     }
+
+    public Integer getUserId(String username)
+    {
+        List<Integer> response =  connection.queryForList(
+                "SELECT userID FROM AuthenticationSystem WHERE usernames = ? ", Integer.class, username);
+        return response.get(0);
+    }
+
+    public String getPrivilegeLevel(int userID)
+    {
+        List<String> response =  connection.queryForList(
+                "SELECT PrivilegeLevel FROM Users WHERE userID = ? ",
+                String.class, userID);
+        return response.get(0);
+    }
 }

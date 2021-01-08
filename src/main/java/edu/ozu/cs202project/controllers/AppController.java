@@ -28,8 +28,11 @@ public class AppController
     // Bu da connection'a erişmek için kullanılıyor
 
     @GetMapping("/")
-    public String index(ModelMap model) { return "index"; }
+    public String empty(ModelMap model) { return "index"; }
     // "/" route'una get requesti geldiği zaman index.jsp dosyasının gösterileceğini anlatıyor
+
+    @GetMapping("/index")
+    public String index(ModelMap model) { return "index"; }
 
     @GetMapping("/register")
     public String RegisterPage(ModelMap model) { return "register"; }
@@ -68,8 +71,11 @@ public class AppController
             model.put("LoginErrorMessage", "Invalid Credentials");
             return "login";
         }
+        int userId = service.getUserId(username);
+        String privilegeLevel = service.getPrivilegeLevel(userId);
+        model.put("level", privilegeLevel);
         model.put("username", username);
-        return "login";
+        return "redirect:/index";
     }
     // "/login" route'una post requesti geldiği zaman kullanıcıdan alınan password öncelikle Salter.salt() methodu ile hashleniyor
     // Ardından if'in conditionu'nda username ve password'ün db'de olup olmadığı kontrol ediliyor eğer bulunmuyorsa
