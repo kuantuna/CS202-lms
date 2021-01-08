@@ -21,21 +21,43 @@ public class AppController
 {
     @Autowired
     LoginService service;
+    // Bunun ayrıca bir class'ı açıldı ve login işlerini düzenlemek için kullanılıyor
 
     @Autowired
     JdbcTemplate connection;
+    // Bu da connection'a erişmek için kullanılıyor
 
     @GetMapping("/")
-    public String index(ModelMap model)
+    public String index(ModelMap model) { return "index"; }
+    // "/" route'una get requesti geldiği zaman index.jsp dosyasının gösterileceğini anlatıyor
+
+    @GetMapping("/register")
+    public String RegisterPage(ModelMap model) { return "register"; }
+
+    @PostMapping("/register")
+    public String handlePostRegister(ModelMap model, @RequestParam String name, @RequestParam String surname, @RequestParam String username, @RequestParam String password, @RequestParam String password_again)
     {
-        return "index";
+        if (!password.equals(password_again))
+        {
+            model.put("RegisterErrorMessage", "Passwords Don't Match");
+            return "register";
+        }
+        if(service.isExist(username))
+        {
+            model.put("RegisterErrorMessage", "Username Already Exist");
+            return "register";
+        }
+        else
+        {
+            password = Salter.salt(password, "CS202Project");
+            service.insertRegularUser(name, surname, username, password);
+            return "redirect:/login";
+        }
     }
 
     @GetMapping("/login")
-    public String loginPage(ModelMap model)
-    {
-        return "login";
-    }
+    public String loginPage(ModelMap model) { return "login"; }
+    // "/login" route'una get requesti geldiği zaman login.jsp dosyasının gösterileceğini anlatıyor
 
     @PostMapping("/login")
     public String handlePostLogin(ModelMap model, @RequestParam String username, @RequestParam String password)
@@ -43,12 +65,16 @@ public class AppController
         password = Salter.salt(password, "CS202Project");
         if(!service.validate(username, password))
         {
-            model.put("errorMessage", "Invalid Credentials");
+            model.put("LoginErrorMessage", "Invalid Credentials");
             return "login";
         }
         model.put("username", username);
         return "login";
     }
+    // "/login" route'una post requesti geldiği zaman kullanıcıdan alınan password öncelikle Salter.salt() methodu ile hashleniyor
+    // Ardından if'in conditionu'nda username ve password'ün db'de olup olmadığı kontrol ediliyor eğer bulunmuyorsa
+    // Oradaki hata mesajı veriliyor, eğer bulunuyorsa username variable'ının içine "username" inputunun içindeki
+    // değer atanıyor.
 
     @GetMapping("/logout")
     public String handleLogout(ModelMap model, WebRequest request, SessionStatus session)
@@ -57,7 +83,10 @@ public class AppController
         request.removeAttribute("username", WebRequest.SCOPE_SESSION);
         return "redirect:/login";
     }
-
+    // "/logout" route'una get requesti geldiği zaman session'ı sonlandırmak için ilk method çağırılıyor
+    // Ardından sessionla birlikte gelen tüm değerler sıfırlanıyor
+    // En son da login sayfasına redirect ediliyor (ve username null hale getirildiği için sayfanın ilk hali görüntüleniyor)
+    /*
     @GetMapping("/list")
     public String list(ModelMap model)
     {
@@ -65,7 +94,7 @@ public class AppController
         // item_name ve item_value değişecek.
         List<String[]> data = connection.query("SELECT * FROM items",
                 (row, index) -> {
-            return new String[]{row.getString(" item_name"), row.getString("item_value")};
+                    return new String[]{row.getString(" item_name"), row.getString("item_value")};
                 });
 
         // itemData adında Attribute ekliyor.
@@ -74,4 +103,5 @@ public class AppController
 
         return "/list";
     }
+     */
 }

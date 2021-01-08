@@ -20,4 +20,26 @@ public class LoginService
                 new Object[]{username, password});
         return response.size() == 1;
     }
+
+    public boolean isExist(String username)
+    {
+        List<Map<String, Object>> response =  connection.queryForList(
+                "SELECT * FROM AuthenticationSystem WHERE usernames = ? ", new Object[]{username});
+        return response.size() == 1;
+    }
+
+    public void insertRegularUser(String firstName, String lastName, String username, String password)
+    {
+        connection.update("INSERT INTO users (PrivilegeLevel) VALUES (" + "'RegularUser'" +")");
+
+        List<Integer> response =  connection.queryForList(
+                "SELECT MAX(UserID) FROM users WHERE PrivilegeLevel = 'RegularUser' ", Integer.class);
+        int userID = response.get(0);
+
+        connection.update("INSERT INTO regularuser (UserID, FirstName, LastName) VALUES (?, ?, ?)",
+                new Object[]{userID , firstName, lastName});
+
+        connection.update("INSERT INTO AuthenticationSystem (UserID, Usernames, Passwords) VALUES (?, ?, ?)",
+                new Object[]{userID , username, password});
+    }
 }
