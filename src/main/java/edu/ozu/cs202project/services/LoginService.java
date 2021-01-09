@@ -73,4 +73,17 @@ public class LoginService
                 new Object[]{userID , username, password});
     }
 
+    public List<String[]> displayBorrowings()
+    {
+        List<String[]> response =  connection.query(
+                "SELECT *" +
+                        " FROM BorrowingInfo NATURAL JOIN regularuser", (row, index) -> {
+                    return new String[]{row.getString("BorrowingID"), row.getString("BookID"),
+                            row.getString("Title"), row.getString("UserID"),
+                            row.getString("FirstName"),row.getString("LastName"),
+                            row.getString("ReserveDate"), row.getString("DueDate"),
+                            row.getString("ReturnDate")};
+                });
+        return response;
+    }
 }

@@ -6,9 +6,13 @@
 <body>
     <header>
         <p>
-            <a href= "/index"> Main Page</a>
+            <a href= "/index">Main Page</a>
             |
-            <a href= "/addpublisher"> Add Publisher</a>
+            <a href= "/addpublisher">Add Publisher </a>
+            |
+            <a href= "/displayborrowings">Display Borrowings</a>
+            |
+            <a href= "/logout">Logout</a>
         </p>
     </header>
     <p style="color: red">${addPublisherErrorMessage}</p>

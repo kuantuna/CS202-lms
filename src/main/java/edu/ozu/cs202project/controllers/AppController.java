@@ -26,7 +26,10 @@ public class AppController
     JdbcTemplate connection;
 
     @GetMapping("/")
-    public String rootRouteGet(ModelMap model) { return "redirect:/index"; }
+    public String rootRouteGet(ModelMap model) {
+        if(model.get("username") == null) { return "redirect:/login"; }
+        return "redirect:/index";
+    }
 
     @GetMapping("/index")
     public String indexGet(ModelMap model) { return "index"; }
@@ -37,7 +40,7 @@ public class AppController
     @PostMapping("/register")
     public String registerPost(ModelMap model, @RequestParam String name, @RequestParam String surname, @RequestParam String username, @RequestParam String password, @RequestParam String password_again)
     {
-        if (!password.equals(password_again))
+        if(!password.equals(password_again))
         {
             model.put("RegisterErrorMessage", "Passwords Don't Match");
             return "register";
@@ -80,10 +83,10 @@ public class AppController
     }
 
     @GetMapping("/addpublisher")
-    public String addPublisherGet(ModelMap model, SessionStatus session)
+    public String addPublisherGet(ModelMap model)
     {
         String username = (String) model.get("username");
-        if(username == null) { return "redirect:/index"; }
+        if(username == null) { return "redirect:/login"; }
         int userId = service.getUserId(username);
         if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
         {
@@ -110,22 +113,17 @@ public class AppController
         return "redirect:/index";
     }
 
-    /*
-    @GetMapping("/list")
-    public String listGet(ModelMap model)
+    @GetMapping("/displayborrowings")
+    public String displayBorrowingsGet(ModelMap model)
     {
-        // items Tablosu değişecek. hangi Tablo incelememiz gerekiyor.
-        // item_name ve item_value değişecek.
-        List<String[]> data = connection.query("SELECT * FROM items",
-                (row, index) -> {
-                    return new String[]{row.getString(" item_name"), row.getString("item_value")};
-                });
-
-        // itemData adında Attribute ekliyor.
-        // 2 boyutlu array.
-        model.addAttribute("itemData",data.toArray(new String[0][2]));
-
-        return "/list";
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager")) {
+            List<String[]> data = service.displayBorrowings();
+            model.addAttribute("itemData",data.toArray(new String[0][8]));
+            return "displayborrowings";
+        }
+        return "redirect:/login";
     }
-     */
 }
