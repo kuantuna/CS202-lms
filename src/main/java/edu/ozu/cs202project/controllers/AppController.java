@@ -21,52 +21,45 @@ public class AppController
 {
     @Autowired
     LoginService service;
-    // Bunun ayrıca bir class'ı açıldı ve login işlerini düzenlemek için kullanılıyor
 
     @Autowired
     JdbcTemplate connection;
-    // Bu da connection'a erişmek için kullanılıyor
 
     @GetMapping("/")
-    public String empty(ModelMap model) { return "index"; }
-    // "/" route'una get requesti geldiği zaman index.jsp dosyasının gösterileceğini anlatıyor
+    public String rootRouteGet(ModelMap model) { return "redirect:/index"; }
 
     @GetMapping("/index")
-    public String index(ModelMap model) { return "index"; }
+    public String indexGet(ModelMap model) { return "index"; }
 
     @GetMapping("/register")
-    public String RegisterPage(ModelMap model) { return "register"; }
+    public String registerGet(ModelMap model) { return "register"; }
 
     @PostMapping("/register")
-    public String handlePostRegister(ModelMap model, @RequestParam String name, @RequestParam String surname, @RequestParam String username, @RequestParam String password, @RequestParam String password_again)
+    public String registerPost(ModelMap model, @RequestParam String name, @RequestParam String surname, @RequestParam String username, @RequestParam String password, @RequestParam String password_again)
     {
         if (!password.equals(password_again))
         {
             model.put("RegisterErrorMessage", "Passwords Don't Match");
             return "register";
         }
-        if(service.userExist(username))
+        if(service.usernameExist(username))
         {
             model.put("RegisterErrorMessage", "Username Already Exist");
             return "register";
         }
-        else
-        {
             password = Salter.salt(password, "CS202Project");
             service.insertRegularUser(name, surname, username, password);
             return "redirect:/login";
-        }
     }
 
     @GetMapping("/login")
-    public String loginPage(ModelMap model) { return "login"; }
-    // "/login" route'una get requesti geldiği zaman login.jsp dosyasının gösterileceğini anlatıyor
+    public String loginGet(ModelMap model) { return "login"; }
 
     @PostMapping("/login")
-    public String handlePostLogin(ModelMap model, @RequestParam String username, @RequestParam String password)
+    public String loginPost(ModelMap model, @RequestParam String username, @RequestParam String password)
     {
         password = Salter.salt(password, "CS202Project");
-        if(!service.validate(username, password))
+        if(!service.credentialsExist(username, password))
         {
             model.put("LoginErrorMessage", "Invalid Credentials");
             return "login";
@@ -77,13 +70,9 @@ public class AppController
         model.put("username", username);
         return "redirect:/index";
     }
-    // "/login" route'una post requesti geldiği zaman kullanıcıdan alınan password öncelikle Salter.salt() methodu ile hashleniyor
-    // Ardından if'in conditionu'nda username ve password'ün db'de olup olmadığı kontrol ediliyor eğer bulunmuyorsa
-    // Oradaki hata mesajı veriliyor, eğer bulunuyorsa username variable'ının içine "username" inputunun içindeki
-    // değer atanıyor.
 
     @GetMapping("/logout")
-    public String handleLogout(ModelMap model, WebRequest request, SessionStatus session)
+    public String logoutGet(ModelMap model, WebRequest request, SessionStatus session)
     {
         session.setComplete();
         request.removeAttribute("username", WebRequest.SCOPE_SESSION);
@@ -111,7 +100,7 @@ public class AppController
             model.put("addPublisherErrorMessage", "Passwords Don't Match");
             return "addpublisher";
         }
-        if(service.userExist(username))
+        if(service.usernameExist(username))
         {
             model.put("addPublisherErrorMessage", "Username Already Exist");
             return "addpublisher";
@@ -121,12 +110,9 @@ public class AppController
         return "redirect:/index";
     }
 
-    // "/logout" route'una get requesti geldiği zaman session'ı sonlandırmak için ilk method çağırılıyor
-    // Ardından sessionla birlikte gelen tüm değerler sıfırlanıyor
-    // En son da login sayfasına redirect ediliyor (ve username null hale getirildiği için sayfanın ilk hali görüntüleniyor)
     /*
     @GetMapping("/list")
-    public String list(ModelMap model)
+    public String listGet(ModelMap model)
     {
         // items Tablosu değişecek. hangi Tablo incelememiz gerekiyor.
         // item_name ve item_value değişecek.
