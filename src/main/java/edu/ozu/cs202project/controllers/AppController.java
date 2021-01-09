@@ -16,7 +16,7 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.List;
 
 @Controller
-@SessionAttributes({"username", "level", "itemData"})
+@SessionAttributes({"username", "level", "itemData", "userId"})
 public class AppController
 {
     @Autowired
@@ -69,6 +69,7 @@ public class AppController
         }
         int userId = service.getUserId(username);
         String privilegeLevel = service.getPrivilegeLevel(userId);
+        model.put("userId", userId);
         model.put("level", privilegeLevel);
         model.put("username", username);
         return "redirect:/index";
@@ -79,6 +80,9 @@ public class AppController
     {
         session.setComplete();
         request.removeAttribute("username", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("userId", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("level", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("itemData", WebRequest.SCOPE_SESSION);
         return "redirect:/login";
     }
 
@@ -133,7 +137,7 @@ public class AppController
         String username = (String) model.get("username");
         if(username == null) { return "redirect:/login"; }
         List<String[]> data = service.displayBookInformation();
-        model.addAttribute("itemData",data.toArray(new String[0][9]));
+        model.addAttribute("itemData",data.toArray(new String[0][11]));
         return "displaybookinfo";
     }
 }

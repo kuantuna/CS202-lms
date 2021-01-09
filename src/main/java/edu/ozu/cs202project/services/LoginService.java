@@ -45,7 +45,7 @@ public class LoginService
 
     public void insertRegularUser(String firstName, String lastName, String username, String password)
     {
-        connection.update("INSERT INTO users (PrivilegeLevel) VALUES (" + "'RegularUser'" +")");
+        connection.update("INSERT INTO users (PrivilegeLevel) VALUES ('RegularUser')");
 
         List<Integer> response =  connection.queryForList(
                 "SELECT MAX(UserID) FROM users WHERE PrivilegeLevel = 'RegularUser' ", Integer.class);
@@ -60,7 +60,7 @@ public class LoginService
 
     public void insertPublisher(String name, String username, String password)
     {
-        connection.update("INSERT INTO users (PrivilegeLevel) VALUES (" + "'Publisher'" +")");
+        connection.update("INSERT INTO users (PrivilegeLevel) VALUES ('Publisher')");
 
         List<Integer> response =  connection.queryForList(
                 "SELECT MAX(UserID) FROM users WHERE PrivilegeLevel = 'Publisher' ", Integer.class);
@@ -88,12 +88,14 @@ public class LoginService
 
     public List<String[]> displayBookInformation()
     {
-        List<String[]> response =  connection.query("SELECT * FROM book", (row, index) -> {
-            return new String[]{row.getString("BookID"), row.getString("Title"),
-                    row.getString("Author"), row.getString("Topic"),
+        List<String[]> response =  connection.query("SELECT * FROM book NATURAL JOIN publisherbook " +
+                "NATURAL JOIN publisher", (row, index) -> {
+            return new String[]{row.getString("BookID"), row.getString("PublisherName"),
+                    row.getString("Title"),row.getString("Author"), row.getString("Topic"),
                     row.getString("Genre"),row.getString("PublicationDate"),
                     row.getString("IsAvailable"), row.getString("IsRequested"),
-                    row.getString("IsExist"), row.getString("RemoveRequested")};
+                    row.getString("IsExist"), row.getString("RemoveRequested"),
+                    row.getString("UserID")};
         });
         return response;
     }
