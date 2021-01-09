@@ -21,7 +21,7 @@ public class LoginService
         return response.size() == 1;
     }
 
-    public boolean isExist(String username)
+    public boolean userExist(String username)
     {
         List<Map<String, Object>> response =  connection.queryForList(
                 "SELECT * FROM AuthenticationSystem WHERE usernames = ? ", new Object[]{username});

@@ -45,7 +45,7 @@ public class AppController
             model.put("RegisterErrorMessage", "Passwords Don't Match");
             return "register";
         }
-        if(service.isExist(username))
+        if(service.userExist(username))
         {
             model.put("RegisterErrorMessage", "Username Already Exist");
             return "register";

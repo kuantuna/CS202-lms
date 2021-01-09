@@ -11,6 +11,18 @@
     <title>Register to System</title>
 </head>
 <body>
+<%
+    String username = (String) session.getAttribute("username");
+    if(username == null)
+    {
+%>
+<header>
+    <p>
+        <a href= "/login"> Login</a>
+        |
+        <a href= "/register"> Register</a>
+    </p>
+</header>
 <p style="color: red">${RegisterErrorMessage}</p>
 <form method="post">
     Name: <input type="text" name="name">
@@ -20,5 +32,9 @@
     Password Again: <input type="password" name="password_again"/>
     <input type="submit" value="Register"/>
 </form>
+<% } else { %>
+<p> You are logged in as: <%= username %> </p>
+<a href="/logout">Logout</a>
+<% } %>
 </body>
 </html>
