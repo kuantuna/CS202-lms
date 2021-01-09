@@ -18,12 +18,12 @@
 %>
 <header>
     <p>
-        <a href= "/login"> Login</a>
+        <a href="/login"> Login</a>
         |
-        <a href= "/register"> Register</a>
+        <a href="/register"> Register</a>
     </p>
 </header>
-<p style="color: red">${RegisterErrorMessage}</p>
+<p style="color: red">${errorMessage}</p>
 <form method="post">
     Name: <input type="text" name="name"/>
     Surname: <input type="text" name="surname"/>

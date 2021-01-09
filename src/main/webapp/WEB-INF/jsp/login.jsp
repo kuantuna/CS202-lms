@@ -11,12 +11,12 @@
 %>
 <header>
     <p>
-        <a href= "/login"> Login</a>
+        <a href="/login"> Login</a>
         |
-        <a href= "/register"> Register</a>
+        <a href="/register"> Register</a>
     </p>
 </header>
-<p style="color: red">${LoginErrorMessage}</p>
+<p style="color: red">${errorMessage}</p>
 <form method="post">
     Username: <input type="text" name="username"/>
     Password: <input type="password" name="password"/>

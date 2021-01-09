@@ -42,12 +42,12 @@ public class AppController
     {
         if(!password.equals(password_again))
         {
-            model.put("RegisterErrorMessage", "Passwords Don't Match");
+            model.put("errorMessage", "Passwords Don't Match");
             return "register";
         }
         if(service.usernameExist(username))
         {
-            model.put("RegisterErrorMessage", "Username Already Exist");
+            model.put("errorMessage", "Username Already Exist");
             return "register";
         }
             password = Salter.salt(password, "CS202Project");
@@ -64,7 +64,7 @@ public class AppController
         password = Salter.salt(password, "CS202Project");
         if(!service.credentialsExist(username, password))
         {
-            model.put("LoginErrorMessage", "Invalid Credentials");
+            model.put("errorMessage", "Invalid Credentials");
             return "login";
         }
         int userId = service.getUserId(username);
@@ -100,12 +100,12 @@ public class AppController
     {
         if (!password.equals(password_again))
         {
-            model.put("addPublisherErrorMessage", "Passwords Don't Match");
+            model.put("errorMessage", "Passwords Don't Match");
             return "addpublisher";
         }
         if(service.usernameExist(username))
         {
-            model.put("addPublisherErrorMessage", "Username Already Exist");
+            model.put("errorMessage", "Username Already Exist");
             return "addpublisher";
         }
         password = Salter.salt(password, "CS202Project");
@@ -125,5 +125,15 @@ public class AppController
             return "displayborrowings";
         }
         return "redirect:/login";
+    }
+
+    @GetMapping("/displaybookinfo")
+    public String displayBookInfoGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        List<String[]> data = service.displayBookInformation();
+        model.addAttribute("itemData",data.toArray(new String[0][9]));
+        return "displaybookinfo";
     }
 }

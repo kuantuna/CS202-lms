@@ -10,13 +10,15 @@
 <body>
     <header>
         <p>
-            <a href= "/index">Main Page</a>
+            <a href="/index">Main Page</a>
             |
-            <a href= "/addpublisher">Add Publisher</a>
+            <a href="/addpublisher">Add Publisher</a>
             |
-            <a href= "/displayborrowings">Display Borrowings</a>
+            <a href="/displayborrowings">Display Borrowings</a>
             |
-            <a href= "/logout">Logout</a>
+            <a href="/displaybookinfo">Display Book Info</a>
+            |
+            <a href="/logout">Logout</a>
         </p>
     </header>
     <p>Hello Library Manager!</p>
@@ -25,6 +27,15 @@
     } else if(privilegeLevel.equals("Publisher")){
 %>
 <body>
+    <header>
+        <p>
+            <a href="/index">Main Page</a>
+            |
+            <a href="/displaybookinfo">Display Book Info</a>
+            |
+            <a href="/logout">Logout</a>
+        </p>
+    </header>
     <p>Hello Publisher!</p>
     <a href="/logout">Logout</a>
 </body>
@@ -32,6 +43,15 @@
     } else{
 %>
 <body>
+    <header>
+        <p>
+            <a href="/index">Main Page</a>
+            |
+            <a href="/displaybookinfo">Display Book Info</a>
+            |
+            <a href="/logout">Logout</a>
+        </p>
+    </header>
     <p>Hello Regular User!</p>
     <a href="/logout">Logout</a>
 </body>

@@ -6,13 +6,15 @@
 <body>
     <header>
         <p>
-            <a href= "/index">Main Page</a>
+            <a href="/index">Main Page</a>
             |
-            <a href= "/addpublisher">Add Publisher</a>
+            <a href="/addpublisher">Add Publisher</a>
             |
-            <a href= "/displayborrowings">Display Borrowings</a>
+            <a href="/displayborrowings">Display Borrowings</a>
             |
-            <a href= "/logout">Logout</a>
+            <a href="/displaybookinfo">Display Book Info</a>
+            |
+            <a href="/logout">Logout</a>
         </p>
     </header>
     <table border="1">
@@ -28,7 +30,7 @@
         {
 %>          <tr>
                 <td> <%= item[0] %></td><td> <%= item[1] %></td><td> <%= item[2] %></td><td> <%= item[3] %></td><td> <%= item[4] %></td>
-                <td> <%= item[5] %></td><td> <%= item[6] %></td><td> <%= item[7] %></td><td> <%= item[8] %></td>
+                <td> <%= item[5] %></td><td> <%= item[6] %></td><td> <%= item[7] %></td><td> <%= item[8]==null ? "Not yet returned" : item[8] %></td>
             </tr>
 <%
         }

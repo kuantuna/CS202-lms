@@ -6,16 +6,18 @@
 <body>
     <header>
         <p>
-            <a href= "/index">Main Page</a>
+            <a href="/index">Main Page</a>
             |
-            <a href= "/addpublisher">Add Publisher </a>
+            <a href="/addpublisher">Add Publisher</a>
             |
-            <a href= "/displayborrowings">Display Borrowings</a>
+            <a href="/displayborrowings">Display Borrowings</a>
             |
-            <a href= "/logout">Logout</a>
+            <a href="/displaybookinfo">Display Book Info</a>
+            |
+            <a href="/logout">Logout</a>
         </p>
     </header>
-    <p style="color: red">${addPublisherErrorMessage}</p>
+    <p style="color: red">${errorMessage}</p>
     <form method="post">
         Publisher Name: <input type="text" name="name"/>
         Username: <input type="text" name="username"/>
