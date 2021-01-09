@@ -8,6 +8,13 @@
     if(privilegeLevel.equals("LibraryManager")) {
 %>
 <body>
+    <header>
+        <p>
+            <a href= "/index"> Main Page</a>
+            |
+            <a href= "/addpublisher"> Add Publisher</a>
+        </p>
+    </header>
     <p>Hello Library Manager!</p>
     <a href="/logout">Logout</a>
 </body>

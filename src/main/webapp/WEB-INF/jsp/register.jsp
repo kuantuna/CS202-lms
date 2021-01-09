@@ -25,8 +25,8 @@
 </header>
 <p style="color: red">${RegisterErrorMessage}</p>
 <form method="post">
-    Name: <input type="text" name="name">
-    Surname: <input type="text" name="surname">
+    Name: <input type="text" name="name"/>
+    Surname: <input type="text" name="surname"/>
     Username: <input type="text" name="username"/>
     Password: <input type="password" name="password"/>
     Password Again: <input type="password" name="password_again"/>

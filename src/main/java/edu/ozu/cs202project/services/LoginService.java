@@ -57,4 +57,20 @@ public class LoginService
                 String.class, userID);
         return response.get(0);
     }
+
+    public void insertPublisher(String name, String username, String password)
+    {
+        connection.update("INSERT INTO users (PrivilegeLevel) VALUES (" + "'Publisher'" +")");
+
+        List<Integer> response =  connection.queryForList(
+                "SELECT MAX(UserID) FROM users WHERE PrivilegeLevel = 'Publisher' ", Integer.class);
+        int userID = response.get(0);
+
+        connection.update("INSERT INTO publisher (UserID, PublisherName) VALUES (?, ?)",
+                new Object[]{userID , name});
+
+        connection.update("INSERT INTO AuthenticationSystem (UserID, Usernames, Passwords) VALUES (?, ?, ?)",
+                new Object[]{userID , username, password});
+    }
+    // insertPublisher ve insertRegularUser birlestirilebilir
 }

@@ -89,6 +89,38 @@ public class AppController
         request.removeAttribute("username", WebRequest.SCOPE_SESSION);
         return "redirect:/login";
     }
+
+    @GetMapping("/addpublisher")
+    public String addPublisherGet(ModelMap model, SessionStatus session)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/index"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
+        {
+            return "addpublisher";
+        }
+        return "redirect:/index";
+    }
+
+    @PostMapping("/addpublisher")
+    public String addPublisherPost(ModelMap model, @RequestParam String name, @RequestParam String username, @RequestParam String password, @RequestParam String password_again)
+    {
+        if (!password.equals(password_again))
+        {
+            model.put("addPublisherErrorMessage", "Passwords Don't Match");
+            return "addpublisher";
+        }
+        if(service.userExist(username))
+        {
+            model.put("addPublisherErrorMessage", "Username Already Exist");
+            return "addpublisher";
+        }
+        password = Salter.salt(password, "CS202Project");
+        service.insertPublisher(name, username, password);
+        return "redirect:/index";
+    }
+
     // "/logout" route'una get requesti geldiği zaman session'ı sonlandırmak için ilk method çağırılıyor
     // Ardından sessionla birlikte gelen tüm değerler sıfırlanıyor
     // En son da login sayfasına redirect ediliyor (ve username null hale getirildiği için sayfanın ilk hali görüntüleniyor)
