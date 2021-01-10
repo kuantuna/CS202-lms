@@ -102,6 +102,10 @@ public class AppController
     @PostMapping("/addpublisher")
     public String addPublisherPost(ModelMap model, @RequestParam String name, @RequestParam String username, @RequestParam String password, @RequestParam String password_again)
     {
+        String username_ = (String) model.get("username");
+        if(username_ == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username_);
+        if(!service.getPrivilegeLevel(userId).equals("LibraryManager")) { return "redirect:/index"; }
         if (!password.equals(password_again))
         {
             model.put("errorMessage", "Passwords Don't Match");
@@ -139,5 +143,46 @@ public class AppController
         List<String[]> data = service.displayBookInformation();
         model.addAttribute("itemData",data.toArray(new String[0][11]));
         return "displaybookinfo";
+    }
+
+    @GetMapping("addbook")
+    public String addBookGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager")) {
+            return "addbook";
+        }
+        return "redirect:/login";
+    }
+
+    @PostMapping("addbook")
+    public String addBookPost(ModelMap model, @RequestParam String publisher_id, @RequestParam String title,
+                              @RequestParam String author,  @RequestParam String topic, @RequestParam String genre)
+    {
+        String username_ = (String) model.get("username");
+        if(username_ == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username_);
+        if(!service.getPrivilegeLevel(userId).equals("LibraryManager")) { return "redirect:/index"; }
+        if(!service.isPublisher(publisher_id))
+        {
+            model.put("errorMessage", "Your specified id doesn't belong to a publisher");
+            return "addbook";
+        }
+        service.addBook(title, author, topic, genre, publisher_id);
+        return "redirect:/login";
+    }
+
+    @GetMapping("addrequest")
+    public String addRequestGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("Publisher")) {
+            return "addrequest";
+        }
+        return "redirect:/login";
     }
 }

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -98,5 +100,30 @@ public class LoginService
                     row.getString("UserID")};
         });
         return response;
+    }
+
+    public boolean isPublisher(String userId)
+    {
+        List<String> response =  connection.queryForList(
+                "SELECT PrivilegeLevel FROM Users WHERE UserID = ?", String.class, userId);
+        return response.get(0).equals("Publisher");
+    }
+
+    public void addBook(String title, String author, String topic, String genre, String publisherID)
+    {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = sdf.format(date);
+
+        connection.update("INSERT INTO book (PublicationDate, IsAvailable, Title, Author," +
+                " Topic, Genre, BorrowedTimes, IsExist, IsRequested, RemoveRequested) " +
+                "VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", new Object[]{dateString, true, title, author,
+                    topic, genre, 0, true, false, false});
+
+        List<Integer> response =  connection.queryForList(
+                "SELECT MAX(BookID) FROM book", Integer.class);
+        int bookID = response.get(0);
+
+        connection.update("INSERT INTO publisherbook (BookID, UserID) VALUE (?, ?)", new Object[]{bookID, publisherID});
     }
 }

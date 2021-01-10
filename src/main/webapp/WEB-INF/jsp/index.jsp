@@ -18,6 +18,8 @@
             |
             <a href="/displaybookinfo">Display Book Info</a>
             |
+            <a href="/addbook">Add Book</a>
+            |
             <a href="/logout">Logout</a>
         </p>
     </header>

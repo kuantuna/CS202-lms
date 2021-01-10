@@ -62,14 +62,14 @@
         String[][] data = (String[][]) session.getAttribute("itemData");
         if(data!=null){
             for(String[] item : data){
-                if(item[9].equals("1")){
+                if(item[9].equals("1") && !session.getAttribute("userId").equals(item[11])){
     %>
     <tr>
         <td><%= item[0] %></td> <td><%= item[1] %></td> <td><%= item[2] %></td> <td><%= item[3] %></td><td> <%= item[4] %></td>
         <td><%= item[5] %></td> <td><%= item[6] %></td> <td><%= item[7].equals("1") ? "Available" : "Not Available" %></td>
         <td><%= item[8].equals("1") ? "Requested" : "Not Requested" %></td>
-        <%= session.getAttribute("userId").equals(item[11]) ? (item[9].equals("1") ? "<td>-</td>" : "<td>Add Requested</td>") : "<td>-</td>" %>
-        <%= session.getAttribute("userId").equals(item[11]) ? (item[10].equals("1") ? "<td>Remove Requested</td>" : "<td>-</td>") : "<td>-</td>" %>
+        <%= item[9].equals("1") ? "<td>-</td>" : "<td>Add Requested</td>" %>
+        <%= item[10].equals("1") ? "<td>Remove Requested</td>" : "<td>-</td>" %>
     </tr>
     <%          }
             }
