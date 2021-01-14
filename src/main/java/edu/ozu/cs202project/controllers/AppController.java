@@ -13,7 +13,7 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.List;
 
 @Controller
-@SessionAttributes({"username", "level", "itemData", "userId", "genreData", "topicData", "authorData"})
+@SessionAttributes({"username", "level", "itemData", "userId", "genreData", "topicData", "authorData", "publisherData"})
 public class AppController
 {
     @Autowired
@@ -163,6 +163,14 @@ public class AppController
         if(username == null) { return "redirect:/login"; }
         int userId = service.getUserId(username);
         if(service.getPrivilegeLevel(userId).equals("LibraryManager")) {
+            List<String[]> publisherData = service.getPublishers();
+            model.addAttribute("publisherData", publisherData.toArray(new String[0][1]));
+            List<String[]> genreData = service.getGenres();
+            model.addAttribute("genreData", genreData.toArray(new String[0][1]));
+            List<String[]> topicData = service.getTopics();
+            model.addAttribute("topicData", topicData.toArray(new String[0][1]));
+            List<String[]> authorData = service.getAuthors();
+            model.addAttribute("authorData", authorData.toArray(new String[0][2]));
             return "addbook";
         }
         return "redirect:/index";
@@ -170,18 +178,17 @@ public class AppController
 
     @PostMapping("addbook")
     public String addBookPost(ModelMap model, @RequestParam String publisher_id, @RequestParam String title,
-                              @RequestParam String author,  @RequestParam String topic, @RequestParam String genre)
+                              @RequestParam String publication_date,  @RequestParam String genre_id[], @RequestParam String[] topic_id,
+                              @RequestParam String[] author_id)
     {
         String username_ = (String) model.get("username");
         if(username_ == null) { return "redirect:/login"; }
         int userId = service.getUserId(username_);
+
         if(!service.getPrivilegeLevel(userId).equals("LibraryManager")) { return "redirect:/index"; }
-        if(!service.isPublisher(publisher_id))
-        {
-            model.put("errorMessage", "Your specified id doesn't belong to a publisher");
-            return "addbook";
-        }
-        service.addBook(title, author, topic, genre, publisher_id);
+        String publisherId = service.getRealUserId(publisher_id);
+        String fixed_date = publication_date.substring(0,10) + ' ' + publication_date.substring(11);
+        service.addBook(title, publisherId, fixed_date, genre_id, topic_id, author_id);
         return "redirect:/index";
     }
 

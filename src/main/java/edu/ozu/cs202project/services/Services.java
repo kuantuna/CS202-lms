@@ -127,32 +127,47 @@ public class Services
         return response;
     }
 
-    public boolean isPublisher(String userId)
+    public void addBook(String title, String publisherID, String publicationDate, String[] genre_ids,
+                        String[] topic_ids, String[] author_ids)
+    {
+        /*Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = sdf.format(date);*/
+        connection.update("INSERT INTO Book (title, publisher_id, borrowed_times, publication_date," +
+                " is_available, is_requested, remove_requested, is_exist) " +
+                "VALUE (?, ?, 0, ?, true, false, false, true)", new Object[]{title, publisherID, publicationDate
+                    });
+
+        List<String> response =  connection.queryForList(
+                "SELECT MAX(book_id) FROM Book ", String.class);
+        String book_id = response.get(0);
+
+        for(String genre : genre_ids)
+        {
+            connection.update("INSERT INTO GenreBook (book_id, genre_id) VALUE (?, ?)",
+                    new Object[]{book_id, Integer.parseInt(genre)+1});
+        }
+
+        for(String topic : topic_ids)
+        {
+            connection.update("INSERT INTO TopicBook (book_id, topic_id) VALUE (?, ?)",
+                    new Object[]{book_id, Integer.parseInt(topic)+1});
+        }
+
+        for(String author : author_ids)
+        {
+            connection.update("INSERT INTO AuthorBook (book_id, user_id) VALUE (?, ?)",
+                    new Object[]{book_id, Integer.parseInt(author)+1});
+        }
+    }
+
+    public String getRealUserId(String publisher_id)
     {
         List<String> response =  connection.queryForList(
-                "SELECT user_type FROM Users WHERE user_id = ?", String.class, userId);
-        return response.get(0).equals("Publisher");
+                "SELECT user_id FROM Publisher LIMIT 1 OFFSET "
+                        + publisher_id, String.class);
+        return response.get(0);
     }
-
-    public void addBook(String title, String author, String topic, String genre, String publisherID)
-    {
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String dateString = sdf.format(date);
-
-        connection.update("INSERT INTO Book (PublicationDate, IsAvailable, Title, Author," +
-                " Topic, Genre, BorrowedTimes, IsExist, IsRequested, RemoveRequested) " +
-                "VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", new Object[]{dateString, true, title, author,
-                    topic, genre, 0, true, false, false});
-
-        List<Integer> response =  connection.queryForList(
-                "SELECT MAX(BookID) FROM Book", Integer.class);
-        int bookID = response.get(0);
-
-        connection.update("INSERT INTO Publisherbook (BookID, UserID) VALUE (?, ?)", new Object[]{bookID, publisherID});
-    }
-
-
     //
 
     public List<String[]> booksForRemoveRequest(String userId)
@@ -177,6 +192,15 @@ public class Services
             ++count;
         }
         connection.update("UPDATE Book SET remove_requested = 1 WHERE book_id = " + real_book_id);
+    }
+
+    public List<String[]> getPublishers()
+    {
+        List<String[]> response = connection.query("SELECT publisher_name FROM Publisher"
+                ,(row, index) -> { return new String[]{ row.getString("publisher_name")
+                };
+                });
+        return response;
     }
 
     public List<String[]> getGenres()
