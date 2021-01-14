@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class LoginService
+public class Services
 {
     @Autowired
     JdbcTemplate connection;
@@ -103,8 +103,8 @@ public class LoginService
     {
         List<String[]> response =  connection.query(
                 "SELECT b.book_id, b.title, b.publisher_id, p.publisher_name, a.first_name, " +
-                        "a.last_name, t.topic_name, g.genre_name, " +
-                        "b.publication_date, b.is_available, b.is_requested, b.remove_requested, b.is_exist " +
+                        "a.last_name, t.topic_name, g.genre_name, b.publication_date, " +
+                        "b.is_available, b.is_requested, b.remove_requested, b.is_exist, b.borrowed_times " +
                         "FROM Book AS b LEFT JOIN Publisher AS p ON b.publisher_id=p.user_id " +
                         "LEFT JOIN AuthorBook AS ab ON b.book_id=ab.book_id " +
                         "LEFT JOIN Author AS a ON ab.user_id=a.user_id " +
@@ -120,7 +120,8 @@ public class LoginService
                     row.getString("topic_name"),
                     row.getString("genre_name"), row.getString("publication_date"),
                     row.getString("is_available"), row.getString("is_requested"),
-                    row.getString("remove_requested"), row.getString("is_exist")
+                    row.getString("remove_requested"), row.getString("is_exist"),
+                    row.getString("borrowed_times")
             };
         });
         return response;
@@ -234,5 +235,13 @@ public class LoginService
             connection.update("INSERT INTO AuthorBook (book_id, user_id) VALUE (?, ?)",
                     new Object[]{book_id, Integer.parseInt(author)+1});
         }
+    }
+
+    public String getBorrowingTimes(String book_id)
+    {
+        List<String> response =  connection.queryForList(
+                "SELECT COUNT(publisher_id) FROM Book NATURAL JOIN Borrowing WHERE Book.book_id = "
+                        + book_id, String.class);
+        return response.get(0);
     }
 }

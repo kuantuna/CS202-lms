@@ -1,7 +1,7 @@
 package edu.ozu.cs202project.controllers;
 
 import edu.ozu.cs202project.Salter;
-import edu.ozu.cs202project.services.LoginService;
+import edu.ozu.cs202project.services.Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -17,7 +17,7 @@ import java.util.List;
 public class AppController
 {
     @Autowired
-    LoginService service;
+    Services service;
 
     @Autowired
     JdbcTemplate connection;
@@ -151,7 +151,7 @@ public class AppController
         String username = (String) model.get("username");
         if(username == null) { return "redirect:/login"; }
         List<String[]> data = service.displayBookInformation();
-        model.addAttribute("itemData",data.toArray(new String[0][13]));
+        model.addAttribute("itemData",data.toArray(new String[0][14]));
         return "displaybookinfo";
     }
     // TAMAM
@@ -215,7 +215,6 @@ public class AppController
         if(username == null) { return "redirect:/login"; }
         int userId = service.getUserId(username);
         String fixed_date = publication_date.substring(0,10) + ' ' + publication_date.substring(11);
-        System.out.println(fixed_date);
         if(service.getPrivilegeLevel(userId).equals("Publisher")) {
             service.addBookRequest(title, fixed_date, genre_id, topic_id, author_id, String.valueOf(model.get("userId")));
         }

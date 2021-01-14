@@ -43,6 +43,7 @@ CREATE TABLE Publisher(
 CREATE TABLE Book(
 	book_id int auto_increment not null,
     title varchar(30) not null,
+    borrowed_times int not null,
     publisher_id int not null,
     publication_date datetime not null,
     is_available boolean not null,
@@ -70,11 +71,10 @@ CREATE TABLE Borrowing(
 );
 
 CREATE TABLE Author(
-	user_id int not null,
+	user_id int not null auto_increment,
     first_name varchar(30) not null,
     last_name varchar(30) not null,
-    PRIMARY KEY(user_id),
-    FOREIGN KEY(user_id) REFERENCES Users(user_id)
+    PRIMARY KEY(user_id)
 );
 
 CREATE TABLE AuthorBook(

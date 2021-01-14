@@ -27,7 +27,7 @@
     <tr>
         <th>Book ID</th><th>Title</th><th>Publisher ID</th><th>Publisher Name</th><th>First Name</th><th>Last Name</th>
         <th>Topic Name</th><th>Genre Name</th><th>Publication Date</th><th>Availability Status</th>
-        <th>Is Requested</th><th>Remove Requested</th><th>Add Requested</th>
+        <th>Is Requested</th><th>Remove Requested</th><th>Add Requested</th><th>Borrowed Times</th>
     </tr>
     <%
         String[][] data = (String[][]) session.getAttribute("itemData");
@@ -42,6 +42,7 @@
         <%= item[10].equals("1") ? "<td>Requested</td>" : "<td>Not Requested</td>" %>
         <%= item[11].equals("1") ? "<td>Remove Requested</td>" : "<td>-</td>" %>
         <%= item[12].equals("1") ? "<td>-</td>" : "<td>Add Requested</td>" %>
+        <td><%=item[13]%></td>
     </tr>
     <%  } %>
 
@@ -66,7 +67,7 @@
     <tr>
         <th>Book ID</th><th>Title</th><th>Publisher Name</th><th>Author Name</th><th>Author Surname</th>
         <th>Topic Name</th><th>Genre Name</th><th>Publication Date</th><th>Availability Status</th>
-        <th>Is Requested</th><th>Remove Requested</th><th>Add Requested</th>
+        <th>Is Requested</th><th>Remove Requested</th><th>Add Requested</th><th>Borrowed Times</th>
     </tr>
     <%
         String[][] data = (String[][]) session.getAttribute("itemData");
@@ -83,6 +84,7 @@
         <%= item[10].equals("1") ? "<td>Requested</td>" : "<td>Not Requested</td>" %>
         <%= item[11].equals("1") ? "<td>Remove Requested</td>" : "<td>-</td>" %>
         <%= item[12].equals("1") ? "<td>-</td>" : "<td>Add Requested</td>" %>
+        <%= session.getAttribute("userId").toString().equals(item[2]) ? "<td>" + item[13] + "</td>" : "<td>-</td>" %>
     </tr>
     <%
             }
@@ -114,40 +116,6 @@
             if(item[12].equals("0")){ }
             else
             {
-
-    %>
-    <tr>
-        <td><%= item[0] %></td> <td><%= item[1] %></td> <td><%= item[3] %></td>
-        <td><%= item[4] %></td> <td> <%= item[5] %></td>
-        <td><%= item[6] %></td> <td><%= item[7] %></td> <td><%=item[8]%></td>
-        <td><%= item[9].equals("1") ? "Available" : "Not Available" %></td>
-        <%= item[10].equals("1") ? "<td>Requested</td>" : "<td>Not Requested</td>" %>
-    </tr>
-    <%
-            }
-        }
-    %>
-</table>
-<%
-}else if(privilegeLevel.equals("Author")){
-%>
-<header>
-
-</header>
-<table border="1">
-    <tr>
-        <th>Book ID</th><th>Title</th><th>Publisher Name</th><th>Author Name</th><th>Author Surname</th>
-        <th>Topic Name</th><th>Genre Name</th><th>Publication Date</th><th>Availability Status</th>
-        <th>Is Requested</th>
-    </tr>
-    <%
-        String[][] data = (String[][]) session.getAttribute("itemData");
-        for(String[] item : data)
-        {
-            if(item[12].equals("0")){ }
-            else
-            {
-
     %>
     <tr>
         <td><%= item[0] %></td> <td><%= item[1] %></td> <td><%= item[3] %></td>
