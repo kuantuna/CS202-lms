@@ -129,7 +129,7 @@ public class AppController
         int userId = service.getUserId(username);
         if(service.getPrivilegeLevel(userId).equals("LibraryManager")) {
             List<String[]> data = service.displayBorrowings();
-            model.addAttribute("itemData",data.toArray(new String[0][8]));
+            model.addAttribute("itemData",data.toArray(new String[0][7]));
             return "displayborrowings";
         }
         return "redirect:/login";
@@ -141,9 +141,10 @@ public class AppController
         String username = (String) model.get("username");
         if(username == null) { return "redirect:/login"; }
         List<String[]> data = service.displayBookInformation();
-        model.addAttribute("itemData",data.toArray(new String[0][11]));
+        model.addAttribute("itemData",data.toArray(new String[0][14]));
         return "displaybookinfo";
     }
+    // TAMAM
 
     @GetMapping("addbook")
     public String addBookGet(ModelMap model)

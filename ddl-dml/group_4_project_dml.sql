@@ -29,7 +29,7 @@ VALUES("Solar Eclipse of the Heart", 2, '2006-05-08 12:35:29.123', true, false, 
 
 INSERT INTO Borrowing(book_id, user_id, reserve_date, return_date)
 VALUES(1, 3, '2007-05-08 12:35:29.123', '2007-06-08 12:35:29.123'), (3, 4, '2007-07-08 12:35:29.123', '2007-08-08 12:35:29.123'),
-(4, 4, '2007-09-08 12:35:29.123', '2007-10-08 12:35:29.123');
+(4, 4, '2007-09-08 12:35:29.123', '2007-10-08 12:35:29.123'), (3, 4, '2007-11-08 12:35:29.123', null);
 
 INSERT INTO Topic(topic_name)
 VALUES("Love"), ("Death"), ("Good vs evil"), ("Power and corruption");
@@ -44,4 +44,4 @@ INSERT INTO TopicBook(book_id, topic_id)
 VALUES(1, 1), (2, 3), (3, 3), (3, 1), (4, 4);
 
 INSERT INTO GenreBook(book_id, genre_id)
-VALUES(1, 2), (2, 2), (3, 3), (4, 4), (4, 2);
+VALUES(1, 2), (2, 2), (3, 3), (3,4), (4, 4), (4, 2);
