@@ -4,25 +4,25 @@
     <title>Display Borrowings</title>
 </head>
 <body>
-    <header>
-        <p>
-            <a href="/index">Main Page</a>
-            |
-            <a href="/addpublisher">Add Publisher</a>
-            |
-            <a href="/displayborrowings">Display Borrowings</a>
-            |
-            <a href="/displaybookinfo">Display Book Info</a>
-            |
-            <a href="/addbook">Add Book</a>
-            |
-            <a href="/logout">Logout</a>
-        </p>
-    </header>
+<header>
+    <p>
+        <a href="/index">Main Page</a>
+        |
+        <a href="/addpublisher">Add Publisher</a>
+        |
+        <a href="/displayborrowings">Display Borrowings</a>
+        |
+        <a href="/displaybookinfo">Display Book Info</a>
+        |
+        <a href="/addbook">Add Book</a>
+        |
+        <a href="/logout">Logout</a>
+    </p>
+</header>
     <table border="1">
         <tr>
-            <th>Borrowing ID</th><th>Book ID</th><th>Title</th><th>User ID</th><th>First Name</th>
-            <th>Last Name</th><th>Reserve Date</th><th>Return Date</th>
+            <th>Borrowing ID</th><th>Book ID</th><th>Title</th><th>User ID</th><th>User Name</th>
+            <th>User Surname</th><th>Reserve Date</th><th>Return Date</th>
         </tr>
 <%
     String[][] data = (String[][]) session.getAttribute("itemData");

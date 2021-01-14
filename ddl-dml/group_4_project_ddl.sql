@@ -52,7 +52,9 @@ CREATE TABLE Book(
     PRIMARY KEY(book_id),
     FOREIGN KEY(publisher_id) REFERENCES Publisher(user_id),
     CONSTRAINT check_is_requested
-    CHECK( is_requested = CASE WHEN is_available = true THEN false END )
+    CHECK( is_requested = CASE WHEN is_available = true THEN false END ),
+    CONSTRAINT check_is_remove_requested
+    CHECK( remove_requested = CASE WHEN is_exist = false THEN false END )
     /* Kontrol et */
 );
 

@@ -102,8 +102,8 @@ public class LoginService
     public List<String[]> displayBookInformation()
     {
         List<String[]> response =  connection.query(
-                "SELECT b.book_id, b.title, b.publisher_id, p.publisher_name, ab.user_id AS author_id, a.first_name, " +
-                        "a.last_name, tb.topic_id, t.topic_name, gb.genre_id, g.genre_name, " +
+                "SELECT b.book_id, b.title, b.publisher_id, p.publisher_name, a.first_name, " +
+                        "a.last_name, t.topic_name, g.genre_name, " +
                         "b.publication_date, b.is_available, b.is_requested, b.remove_requested, b.is_exist " +
                         "FROM Book AS b LEFT JOIN Publisher AS p ON b.publisher_id=p.user_id " +
                         "LEFT JOIN AuthorBook AS ab ON b.book_id=ab.book_id " +
@@ -113,6 +113,7 @@ public class LoginService
                         "LEFT JOIN GenreBook AS gb ON b.book_id=gb.book_id " +
                         "LEFT JOIN Genre AS g ON gb.genre_id=g.genre_id ", (row, index) -> {
             return new String[]{row.getString("book_id"), row.getString("title"),
+                    row.getString("publisher_id"),
                     row.getString("publisher_name"),
                     row.getString("first_name"),
                     row.getString("last_name"),
@@ -138,15 +139,100 @@ public class LoginService
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = sdf.format(date);
 
-        connection.update("INSERT INTO book (PublicationDate, IsAvailable, Title, Author," +
+        connection.update("INSERT INTO Book (PublicationDate, IsAvailable, Title, Author," +
                 " Topic, Genre, BorrowedTimes, IsExist, IsRequested, RemoveRequested) " +
                 "VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", new Object[]{dateString, true, title, author,
                     topic, genre, 0, true, false, false});
 
         List<Integer> response =  connection.queryForList(
-                "SELECT MAX(BookID) FROM book", Integer.class);
+                "SELECT MAX(BookID) FROM Book", Integer.class);
         int bookID = response.get(0);
 
-        connection.update("INSERT INTO publisherbook (BookID, UserID) VALUE (?, ?)", new Object[]{bookID, publisherID});
+        connection.update("INSERT INTO Publisherbook (BookID, UserID) VALUE (?, ?)", new Object[]{bookID, publisherID});
+    }
+
+
+    //
+
+    public List<String[]> booksForRemoveRequest(String userId)
+    {
+        List<String[]> response = connection.query("SELECT title, book_id FROM Book WHERE remove_requested = 0 " +
+                        "AND is_exist = 1 AND publisher_id = " + userId
+        ,(row, index) -> { return new String[]{
+                        row.getString("title"), row.getString("book_id")
+                };});
+        return response;
+    }
+
+    public void updateRemoveRequest(String book_id, String userId)
+    {
+        List<String[]> books = booksForRemoveRequest(userId);
+        int count = 0;
+        int real_book_id = 0;
+        for(String[] item : books){
+            if(count == Integer.parseInt(book_id)){
+                real_book_id = Integer.parseInt(item[1]);
+            }
+            ++count;
+        }
+        connection.update("UPDATE Book SET remove_requested = 1 WHERE book_id = " + real_book_id);
+    }
+
+    public List<String[]> getGenres()
+    {
+        List<String[]> response = connection.query("SELECT genre_name FROM Genre"
+                ,(row, index) -> { return new String[]{ row.getString("genre_name")
+                };
+                });
+        return response;
+    }
+
+    public List<String[]> getTopics()
+    {
+        List<String[]> response = connection.query("SELECT topic_name FROM Topic"
+                ,(row, index) -> { return new String[]{ row.getString("topic_name")
+                };
+                });
+        return response;
+    }
+
+    public List<String[]> getAuthors()
+    {
+        List<String[]> response = connection.query("SELECT first_name, last_name FROM Author"
+                ,(row, index) -> { return new String[]{ row.getString("first_name"),
+                        row.getString("last_name")
+                };
+                });
+        return response;
+    }
+
+    public void addBookRequest(String title, String publication_date, String[] genre_ids, String[] topic_ids,
+                          String[] author_ids, String publisherId)
+    {
+        connection.update("INSERT INTO Book (title, publisher_id, publication_date, is_available, is_requested," +
+                "remove_requested, is_exist) VALUE (?, ?, ?, 1, 0, 0, 0)",
+                new Object[]{title, publisherId, publication_date});
+
+        List<String> response =  connection.queryForList(
+                "SELECT MAX(book_id) FROM Book ", String.class);
+        String book_id = response.get(0);
+
+        for(String genre : genre_ids)
+        {
+            connection.update("INSERT INTO GenreBook (book_id, genre_id) VALUE (?, ?)",
+                    new Object[]{book_id, Integer.parseInt(genre)+1});
+        }
+
+        for(String topic : topic_ids)
+        {
+            connection.update("INSERT INTO TopicBook (book_id, topic_id) VALUE (?, ?)",
+                    new Object[]{book_id, Integer.parseInt(topic)+1});
+        }
+
+        for(String author : author_ids)
+        {
+            connection.update("INSERT INTO AuthorBook (book_id, user_id) VALUE (?, ?)",
+                    new Object[]{book_id, Integer.parseInt(author)+1});
+        }
     }
 }

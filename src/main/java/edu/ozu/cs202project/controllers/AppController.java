@@ -6,17 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
 
 @Controller
-@SessionAttributes({"username", "level", "itemData", "userId"})
+@SessionAttributes({"username", "level", "itemData", "userId", "genreData", "topicData", "authorData"})
 public class AppController
 {
     @Autowired
@@ -32,10 +29,16 @@ public class AppController
     }
 
     @GetMapping("/index")
-    public String indexGet(ModelMap model) { return "index"; }
+    public String indexGet(ModelMap model) {
+        if(model.get("username") == null) { return "redirect:/login"; }
+        return "index";
+    }
 
     @GetMapping("/register")
-    public String registerGet(ModelMap model) { return "register"; }
+    public String registerGet(ModelMap model) {
+        if(model.get("username") == null) { return "register"; }
+        return "redirect:/index";
+    }
 
     @PostMapping("/register")
     public String registerPost(ModelMap model, @RequestParam String name, @RequestParam String surname, @RequestParam String username, @RequestParam String password, @RequestParam String password_again)
@@ -56,7 +59,10 @@ public class AppController
     }
 
     @GetMapping("/login")
-    public String loginGet(ModelMap model) { return "login"; }
+    public String loginGet(ModelMap model) {
+        if(model.get("username") == null) { return "login"; }
+        return "redirect:/index";
+    }
 
     @PostMapping("/login")
     public String loginPost(ModelMap model, @RequestParam String username, @RequestParam String password)
@@ -78,11 +84,15 @@ public class AppController
     @GetMapping("/logout")
     public String logoutGet(ModelMap model, WebRequest request, SessionStatus session)
     {
+        if(model.get("username")==null){ return "redirect:/login"; }
         session.setComplete();
         request.removeAttribute("username", WebRequest.SCOPE_SESSION);
         request.removeAttribute("userId", WebRequest.SCOPE_SESSION);
         request.removeAttribute("level", WebRequest.SCOPE_SESSION);
         request.removeAttribute("itemData", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("genreData", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("topicData", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("authorData", WebRequest.SCOPE_SESSION);
         return "redirect:/login";
     }
 
@@ -141,7 +151,7 @@ public class AppController
         String username = (String) model.get("username");
         if(username == null) { return "redirect:/login"; }
         List<String[]> data = service.displayBookInformation();
-        model.addAttribute("itemData",data.toArray(new String[0][14]));
+        model.addAttribute("itemData",data.toArray(new String[0][13]));
         return "displaybookinfo";
     }
     // TAMAM
@@ -155,7 +165,7 @@ public class AppController
         if(service.getPrivilegeLevel(userId).equals("LibraryManager")) {
             return "addbook";
         }
-        return "redirect:/login";
+        return "redirect:/index";
     }
 
     @PostMapping("addbook")
@@ -172,8 +182,11 @@ public class AppController
             return "addbook";
         }
         service.addBook(title, author, topic, genre, publisher_id);
-        return "redirect:/login";
+        return "redirect:/index";
     }
+
+    // DEVAMINA BAKCAZ
+
 
     @GetMapping("addrequest")
     public String addRequestGet(ModelMap model)
@@ -182,8 +195,60 @@ public class AppController
         if(username == null) { return "redirect:/login"; }
         int userId = service.getUserId(username);
         if(service.getPrivilegeLevel(userId).equals("Publisher")) {
+            List<String[]> genreData = service.getGenres();
+            model.addAttribute("genreData", genreData.toArray(new String[0][1]));
+            List<String[]> topicData = service.getTopics();
+            model.addAttribute("topicData", topicData.toArray(new String[0][1]));
+            List<String[]> authorData = service.getAuthors();
+            model.addAttribute("authorData", authorData.toArray(new String[0][2]));
             return "addrequest";
         }
-        return "redirect:/login";
+        return "redirect:/index";
+    }
+
+    @PostMapping("/addrequest")
+    public String addRequestPost(ModelMap model, @RequestParam String title, @RequestParam String publication_date,
+                                  @RequestParam String genre_id[], @RequestParam String[] topic_id,
+                                 @RequestParam String[] author_id)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        String fixed_date = publication_date.substring(0,10) + ' ' + publication_date.substring(11);
+        System.out.println(fixed_date);
+        if(service.getPrivilegeLevel(userId).equals("Publisher")) {
+            service.addBookRequest(title, fixed_date, genre_id, topic_id, author_id, String.valueOf(model.get("userId")));
+        }
+        return "redirect:/index";
+    }
+
+    @GetMapping("removerequest")
+    public String removeRequestGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("Publisher")) {
+            List<String[]> data = service.booksForRemoveRequest(String.valueOf(userId));
+            model.addAttribute("itemData",data.toArray(new String[0][2]));
+            return "removerequest";
+        }
+        return "redirect:/index";
+    }
+
+    @PostMapping("/removerequest")
+    public String removeRequestPost(ModelMap model, @RequestParam String removeRequestedBook)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("Publisher")) {
+            if(removeRequestedBook == null){
+                model.put("errorMessage", "There is no book to remove request");
+                return "removerequest";
+            }
+            service.updateRemoveRequest(removeRequestedBook, String.valueOf(userId));
+        }
+        return "redirect:/index";
     }
 }

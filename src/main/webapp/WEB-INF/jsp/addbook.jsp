@@ -4,6 +4,21 @@
     <title>Add Book</title>
 </head>
 <body>
+<header>
+    <p>
+        <a href="/index">Main Page</a>
+        |
+        <a href="/addpublisher">Add Publisher</a>
+        |
+        <a href="/displayborrowings">Display Borrowings</a>
+        |
+        <a href="/displaybookinfo">Display Book Info</a>
+        |
+        <a href="/addbook">Add Book</a>
+        |
+        <a href="/logout">Logout</a>
+    </p>
+</header>
     <p style="color: red">${errorMessage}</p>
     <form method="post">
         Title <input type="text" name="title"/>

@@ -35,11 +35,14 @@
             |
             <a href="/displaybookinfo">Display Book Info</a>
             |
+            <a href="/addrequest">Add Book Request</a>
+            |
+            <a href="/removerequest">Remove Book Request</a>
+            |
             <a href="/logout">Logout</a>
         </p>
     </header>
     <p>Hello Publisher!</p>
-    <a href="/logout">Logout</a>
 </body>
 <%
     } else{
@@ -55,7 +58,6 @@
         </p>
     </header>
     <p>Hello Regular User!</p>
-    <a href="/logout">Logout</a>
 </body>
 <%
     }

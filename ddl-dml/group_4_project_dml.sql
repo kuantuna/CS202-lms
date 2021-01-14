@@ -22,8 +22,8 @@ VALUES("john", "l+oV5bi5GIYDeLkhPuI68w==", 1), ("atreus", "l+oV5bi5GIYDeLkhPuI68
 ("annelie", "l+oV5bi5GIYDeLkhPuI68w==", 10);
 
 INSERT INTO Book(title, publisher_id, publication_date, is_available, is_requested, remove_requested, is_exist)
-VALUES("Solar Eclipse of the Heart", 2, '2006-05-08 12:35:29.123', true, false, true, true),
-("Zodiac Light", 2, '2005-05-08 12:35:29.123', false, false, true, false),
+VALUES("Solar Eclipse of the Heart", 2, '2006-05-08 12:35:29.123', true, false, false, true),
+("Zodiac Light", 2, '2005-05-08 12:35:29.123', false, false, false, false),
 ("The Woman in the West", 2, '2004-05-08 12:35:29.123', true, false, false, true),
 ("Death of the Invisible Falcon", 7, '2003-05-08 12:35:29.123', false, true, false, false);
 
