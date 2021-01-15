@@ -14,7 +14,8 @@ import java.util.List;
 
 @Controller
 @SessionAttributes({"username", "level", "itemData", "userId", "genreData", "topicData", "authorData",
-        "publisherData", "bookData", "userData"})
+        "publisherData", "bookData", "userData", "mostBorrowedGenres", "mostBorrowedBooks3m", "mostBorrowedPublishers",
+        "numberOfOverdueBooks"})
 public class AppController
 {
     @Autowired
@@ -97,6 +98,10 @@ public class AppController
         request.removeAttribute("publisherData", WebRequest.SCOPE_SESSION);
         request.removeAttribute("bookData", WebRequest.SCOPE_SESSION);
         request.removeAttribute("userData", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("mostBorrowedGenres", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("mostBorrowedBooks3m", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("mostBorrowedPublishers", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("numberOfOverdueBooks", WebRequest.SCOPE_SESSION);
         return "redirect:/login";
     }
 
@@ -413,6 +418,27 @@ public class AppController
             List<String[]> data = service.displayBorrowings();
             model.addAttribute("itemData", data.toArray(new String[0][7]));
             return "displayoverdue";
+        }
+        return "redirect:/index";
+    }
+
+    @GetMapping("/statistics")
+    public String statisticsGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
+        {
+            model.addAttribute("mostBorrowedGenres", service.lmMostBorrowedGenre().toArray(new String[0][2]));
+            model.addAttribute("mostBorrowedBooks3m", service.lmMostBorrowedBooks3m().toArray(new String[0][2]));
+            model.addAttribute("mostBorrowedPublishers", service.mostBorrowedPublisher().toArray(new String[0][2]));
+            model.addAttribute("numberOfOverdueBooks", service.getNumberOfOverdueBooks());
+            return "statistics";
+        }
+        else if(service.getPrivilegeLevel(userId).equals("RegularUser"))
+        {
+            return "statistics";
         }
         return "redirect:/index";
     }

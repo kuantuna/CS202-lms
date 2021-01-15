@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -444,5 +445,70 @@ public class Services
             String requester_id = response4.get(0);
             borrowBook(String.valueOf(Integer.parseInt(real_book_id)-1), Integer.parseInt(requester_id));
         }
+    }
+
+    public List<String[]> lmMostBorrowedGenre()
+    {
+        List<String[]> response = connection.query("SELECT Genre.genre_name, subq.cnt FROM " +
+                        "(SELECT genre_id, COUNT(genre_id) AS cnt FROM GenreBook NATURAL JOIN Book " +
+                        "NATURAL JOIN Borrowing GROUP BY genre_id ORDER BY cnt DESC) AS subq " +
+                        "LEFT JOIN Genre ON subq.genre_id = Genre.genre_id"
+                ,(row, index) -> { return new String[]{ row.getString("genre_name"),
+                        row.getString("cnt")
+                };
+        });
+        return response;
+    }
+
+    public List<String[]> lmMostBorrowedBooks3m()
+    {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = sdf.format(date);
+        List<String[]> response = connection.query("SELECT Book.title, subq.cnt FROM (SELECT book_id, COUNT(book_id) AS cnt " +
+                        "FROM Borrowing WHERE DATEDIFF('" + dateString + "', reserve_date)<30 GROUP BY book_id " +
+                        "ORDER BY cnt DESC) AS subq LEFT JOIN Book ON subq.book_id = Book.book_id"
+                ,(row, index) -> { return new String[]{ row.getString("title"),
+                        row.getString("cnt")
+                };
+        });
+        return response;
+    }
+
+    public List<String[]> mostBorrowedPublisher()
+    {
+        List<String[]> response = connection.query("SELECT DISTINCT publisher_id FROM Book",
+                (row, index) -> { return new String[]{ row.getString("publisher_id"),
+            };
+        });
+        List<String[]> r = new ArrayList<>();
+        for(String[] publisher_id: response)
+        {
+            List<String[]> resp = connection.query("SELECT publisher_id, SUM(borrowed_times) AS sm " +
+                            "FROM Book WHERE publisher_id=" + publisher_id[0],
+                    (row, index) -> { return new String[]{ row.getString("publisher_id"), row.getString("sm")
+                    };
+            });
+            r.add(resp.get(0));
+        }
+        for(String[] item: r)
+        {
+            List<String> rep =  connection.queryForList(
+                    "SELECT publisher_name FROM Publisher WHERE user_id = "
+                            + item[0], String.class);
+            item[0]=rep.get(0);
+        }
+        return r;
+    }
+
+    public String getNumberOfOverdueBooks()
+    {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = sdf.format(date);
+        List<String> response = connection.queryForList("SELECT COUNT(borrowing_id) FROM Borrowing " +
+                        "WHERE return_date is null AND DATEDIFF('"+ dateString +"', reserve_date)>14",
+                String.class);
+        return response.get(0);
     }
 }

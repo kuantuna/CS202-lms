@@ -24,6 +24,8 @@
         |
         <a href="/displayoverdue">Display Overdue Books & Borrowers</a>
         |
+        <a href="/statistics">Statistics</a>
+        |
         <a href="/logout">Logout</a>
     </p>
 </header>
