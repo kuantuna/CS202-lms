@@ -22,6 +22,8 @@
         |
         <a href="/manuallyunassign">Manually Unassign</a>
         |
+        <a href="/displayoverdue">Display Overdue Books & Borrowers</a>
+        |
         <a href="/logout">Logout</a>
     </p>
 </header>
@@ -29,7 +31,7 @@
     <%
         String[][] bookData = (String[][]) session.getAttribute("bookData");
         String[][] userData = (String[][]) session.getAttribute("userData");
-        if(bookData.length == 0 && userData.length == 0){
+        if(bookData.length == 0 || userData.length == 0){
     %>
     <p style="color: red">There is no book or user to assign</p>
     <%}else{%>

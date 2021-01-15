@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Remove Book</title>
+    <title>Title</title>
 </head>
 <body>
 <header>
@@ -27,20 +27,26 @@
         <a href="/logout">Logout</a>
     </p>
 </header>
-<form method="post">
-    <% String[][] bookData = (String[][]) session.getAttribute("bookData");
-        if(bookData.length == 0){
+<table border="1">
+    <tr>
+        <th>Borrowing ID</th><th>Book ID</th><th>Title</th><th>User ID</th><th>User Name</th>
+        <th>User Surname</th><th>Reserve Date</th><th>Return Date</th>
+    </tr>
+    <%
+        String[][] data = (String[][]) session.getAttribute("itemData");
+        if(data != null)
+        {
+            for (String[] item : data)
+            {
+                if(item[7]==null){
+    %>          <tr>
+    <td> <%= item[0] %></td><td> <%= item[1] %></td><td> <%= item[2] %></td><td> <%= item[3] %></td><td> <%= item[4] %></td>
+    <td> <%= item[5] %></td><td> <%= item[6] %></td><td> <%= item[7]==null ? "Not yet returned" : item[7] %></td>
+</tr>
+    <%          }
+            }
+        }
     %>
-    <p style="color: red">There is no book to remove</p>
-    <%}else{%>
-    Books
-    <select name="book_id">
-        <% int i = 0; for(String[] book : bookData){ %>
-        <option value="<%=i%>" name="<%=i%>"><%=book[0]%></option>
-        <%++i; }%>
-    </select>
-    <input type="submit" value="Remove"/>
-    <%}%>
-</form>
+</table>
 </body>
 </html>

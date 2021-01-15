@@ -401,4 +401,19 @@ public class AppController
         }
         return "redirect:/index";
     }
+
+    @GetMapping("/displayoverdue")
+    public String displayOverdueGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
+        {
+            List<String[]> data = service.displayBorrowings();
+            model.addAttribute("itemData", data.toArray(new String[0][7]));
+            return "displayoverdue";
+        }
+        return "redirect:/index";
+    }
 }
