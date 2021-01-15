@@ -102,6 +102,8 @@
         |
         <a href="/displaybookinfo">Display Book Info</a>
         |
+        <a href="/displayborrowings">Display Borrowings</a>
+        |
         <a href="/logout">Logout</a>
     </p>
 </header>

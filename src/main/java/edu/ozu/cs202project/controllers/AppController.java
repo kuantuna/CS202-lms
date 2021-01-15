@@ -140,7 +140,8 @@ public class AppController
         String username = (String) model.get("username");
         if(username == null) { return "redirect:/login"; }
         int userId = service.getUserId(username);
-        if(service.getPrivilegeLevel(userId).equals("LibraryManager")) {
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager") ||
+                service.getPrivilegeLevel(userId).equals("RegularUser")) {
             List<String[]> data = service.displayBorrowings();
             model.addAttribute("itemData",data.toArray(new String[0][7]));
             return "displayborrowings";
