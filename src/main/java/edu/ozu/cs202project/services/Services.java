@@ -107,7 +107,7 @@ public class Services
                         "b.is_available, b.is_requested, b.remove_requested, b.is_exist, b.borrowed_times " +
                         "FROM Book AS b LEFT JOIN Publisher AS p ON b.publisher_id=p.user_id " +
                         "LEFT JOIN AuthorBook AS ab ON b.book_id=ab.book_id " +
-                        "LEFT JOIN Author AS a ON ab.user_id=a.user_id " +
+                        "LEFT JOIN Author AS a ON ab.author_id=a.author_id " +
                         "LEFT JOIN TopicBook AS tb ON b.book_id=tb.book_id " +
                         "LEFT JOIN Topic AS t ON tb.topic_id=t.topic_id " +
                         "LEFT JOIN GenreBook AS gb ON b.book_id=gb.book_id " +
@@ -156,7 +156,7 @@ public class Services
 
         for(String author : author_ids)
         {
-            connection.update("INSERT INTO AuthorBook (book_id, user_id) VALUE (?, ?)",
+            connection.update("INSERT INTO AuthorBook (book_id, author_id) VALUE (?, ?)",
                     new Object[]{book_id, Integer.parseInt(author)+1});
         }
     }
@@ -256,16 +256,32 @@ public class Services
 
         for(String author : author_ids)
         {
-            connection.update("INSERT INTO AuthorBook (book_id, user_id) VALUE (?, ?)",
+            connection.update("INSERT INTO AuthorBook (book_id, author_id) VALUE (?, ?)",
                     new Object[]{book_id, Integer.parseInt(author)+1});
         }
     }
 
-    public String getBorrowingTimes(String book_id)
+    public List<String[]> getBookIds()
     {
-        List<String> response =  connection.queryForList(
-                "SELECT COUNT(publisher_id) FROM Book NATURAL JOIN Borrowing WHERE Book.book_id = "
-                        + book_id, String.class);
-        return response.get(0);
+        List<String[]> response = connection.query("SELECT book_id FROM Book"
+                ,(row, index) -> { return new String[]{ row.getString("book_id")
+                };
+                });
+        return response;
+    }
+
+    public void removeBook(String book_id)
+    {
+        int bookId = Integer.parseInt(book_id) + 1;
+        connection.update("DELETE FROM TopicBook WHERE book_id = ?",
+                new Object[]{bookId});
+        connection.update("DELETE FROM GenreBook WHERE book_id = ?",
+                new Object[]{bookId});
+        connection.update("DELETE FROM AuthorBook WHERE book_id = ?",
+                new Object[]{bookId});
+        connection.update("DELETE FROM Borrowing WHERE book_id = ?",
+                new Object[]{bookId});
+        connection.update("DELETE FROM Book WHERE book_id = ?",
+                new Object[]{bookId});
     }
 }

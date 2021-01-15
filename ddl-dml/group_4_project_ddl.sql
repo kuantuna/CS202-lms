@@ -71,18 +71,18 @@ CREATE TABLE Borrowing(
 );
 
 CREATE TABLE Author(
-	user_id int not null auto_increment,
+	author_id int not null auto_increment,
     first_name varchar(30) not null,
     last_name varchar(30) not null,
-    PRIMARY KEY(user_id)
+    PRIMARY KEY(author_id)
 );
 
 CREATE TABLE AuthorBook(
 	book_id int not null,
-    user_id int not null,
-    PRIMARY KEY(book_id, user_id),
+    author_id int not null,
+    PRIMARY KEY(book_id, author_id),
     FOREIGN KEY(book_id) REFERENCES Book(book_id),
-    FOREIGN KEY(user_id) REFERENCES Author(user_id)
+    FOREIGN KEY(author_id) REFERENCES Author(author_id)
 );
 
 CREATE TABLE Topic(

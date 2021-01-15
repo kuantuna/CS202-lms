@@ -13,7 +13,8 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.List;
 
 @Controller
-@SessionAttributes({"username", "level", "itemData", "userId", "genreData", "topicData", "authorData", "publisherData"})
+@SessionAttributes({"username", "level", "itemData", "userId", "genreData", "topicData", "authorData",
+        "publisherData", "bookData"})
 public class AppController
 {
     @Autowired
@@ -93,6 +94,8 @@ public class AppController
         request.removeAttribute("genreData", WebRequest.SCOPE_SESSION);
         request.removeAttribute("topicData", WebRequest.SCOPE_SESSION);
         request.removeAttribute("authorData", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("publisherData", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("bookData", WebRequest.SCOPE_SESSION);
         return "redirect:/login";
     }
 
@@ -254,6 +257,34 @@ public class AppController
                 return "removerequest";
             }
             service.updateRemoveRequest(removeRequestedBook, String.valueOf(userId));
+        }
+        return "redirect:/index";
+    }
+
+    @GetMapping("/removebook")
+    public String removeBookGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
+        {
+            List<String[]> data = service.getBookIds();
+            model.addAttribute("bookData",data.toArray(new String[0][1]));
+            return "removebook";
+        }
+        return "redirect:/index";
+    }
+
+    @PostMapping("/removebook")
+    public String removeBookPost(ModelMap model, @RequestParam String book_id)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
+        {
+            service.removeBook(book_id);
         }
         return "redirect:/index";
     }

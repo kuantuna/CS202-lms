@@ -20,6 +20,8 @@
             |
             <a href="/addbook">Add Book</a>
             |
+            <a href="/removebook">Remove Book</a>
+            |
             <a href="/logout">Logout</a>
         </p>
     </header>

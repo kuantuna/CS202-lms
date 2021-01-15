@@ -36,7 +36,7 @@ VALUES("Love"), ("Death"), ("Good vs evil"), ("Power and corruption");
 INSERT INTO Genre(genre_name)
 VALUES("Action"), ("Adventure"), ("Classics"), ("Mystery");
 
-INSERT INTO AuthorBook(book_id, user_id)
+INSERT INTO AuthorBook(book_id, author_id)
 VALUES(1, 1), (2, 2), (2,1), (3, 1), (4, 1);
 
 INSERT INTO TopicBook(book_id, topic_id)
