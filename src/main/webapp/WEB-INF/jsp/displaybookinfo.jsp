@@ -27,6 +27,8 @@
         |
         <a href="/manuallyassign">Manually Assign</a>
         |
+        <a href="/manuallyunassign">Manually Unassign</a>
+        |
         <a href="/logout">Logout</a>
     </p>
 </header>

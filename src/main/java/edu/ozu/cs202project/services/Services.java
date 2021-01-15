@@ -291,9 +291,6 @@ public class Services
         String dateString = sdf.format(date);
         connection.update("UPDATE Book SET is_available = 0 WHERE book_id = ?",
                 new Object[]{bookId});
-        System.out.println(bookId);
-        System.out.println(user_id);
-        System.out.println(dateString);
         connection.update("INSERT INTO Borrowing (book_id, user_id, reserve_date, return_date) " +
                         "VALUE (?, ?, ?, null)",
                 new Object[]{bookId, user_id, dateString});
@@ -381,5 +378,71 @@ public class Services
                 "WHERE is_exist = true AND is_available = true LIMIT 1 OFFSET " + book_id, String.class);
         String real_book_id = response1.get(0);
         borrowBook(String.valueOf(Integer.parseInt(real_book_id)-1), Integer.parseInt(real_user_id));
+    }
+
+    public List<String[]> getBorrowingInfoForUnassigning()
+    {
+        List<String[]> response = connection.query("SELECT borrowing_id, book_id, user_id FROM Borrowing " +
+                        "WHERE return_date is null"
+                ,(row, index) -> { return new String[]{ row.getString("borrowing_id"),
+                        row.getString("book_id"), row.getString("user_id")
+                };
+        });
+        return response;
+    }
+
+    public void unassignBook(String borrowing_id)
+    {
+        System.out.println("First borrid: " + borrowing_id);
+        List<String> response =  connection.queryForList(
+                "SELECT borrowing_id FROM Borrowing WHERE return_date is null LIMIT 1 OFFSET "
+                        + borrowing_id, String.class);
+        String real_borrowing_id = response.get(0);
+        System.out.println("Real bor id: " + real_borrowing_id);
+
+        List<String[]> response1 = connection.query("SELECT book_id, user_id FROM Borrowing " +
+                        "WHERE borrowing_id = " + real_borrowing_id
+                ,(row, index) -> { return new String[]{ row.getString("book_id"),
+                        row.getString("user_id")
+                };
+        });
+        String real_book_id = response1.get(0)[0];
+        String real_user_id = response1.get(0)[1];
+
+        System.out.println("First-> ui" +real_user_id);
+        System.out.println("First-> bi" +real_book_id);
+        List<String> response2 = connection.queryForList(
+                "SELECT reserve_date FROM Borrowing WHERE borrowing_id = "+ real_borrowing_id,
+                String.class);
+        String reserve_date = response2.get(0);
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String returnDate = sdf.format(date);
+        connection.update("UPDATE Borrowing SET return_date = ? " +
+                        "WHERE borrowing_id = " + real_borrowing_id,
+                new Object[]{returnDate});
+        connection.update("UPDATE RegularUser " +
+                "SET penalty_score = IF(DATEDIFF('" + returnDate + "', '" + reserve_date + "')>14, " +
+                "penalty_score + DATEDIFF('" + returnDate + "', '" + reserve_date + "') , penalty_score) " +
+                "WHERE user_id = ?", new Object[]{real_user_id});
+        List<String> response3 = connection.queryForList("SELECT is_requested FROM Book WHERE book_id = ?",
+                String.class, real_book_id);
+        String is_requested = response3.get(0);
+
+        // is_requested = false
+        if(is_requested.equals("0"))
+        {
+            connection.update("UPDATE Book SET is_available = true WHERE book_id = ?",
+                    new Object[]{real_book_id});
+        }
+
+        // is_requested = true
+        else
+        {
+            List<String> response4 = connection.queryForList("SELECT requester_id FROM Book WHERE book_id = ?",
+                    String.class, real_book_id);
+            String requester_id = response4.get(0);
+            borrowBook(String.valueOf(Integer.parseInt(real_book_id)-1), Integer.parseInt(requester_id));
+        }
     }
 }

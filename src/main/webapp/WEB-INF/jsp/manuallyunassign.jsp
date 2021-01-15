@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Remove Book</title>
+    <title>Manually Unassign</title>
 </head>
 <body>
 <header>
@@ -26,18 +26,19 @@
     </p>
 </header>
 <form method="post">
-    <% String[][] bookData = (String[][]) session.getAttribute("bookData");
-        if(bookData.length == 0){
+    <%
+        String[][] itemData = (String[][]) session.getAttribute("itemData");
+        if(itemData.length == 0){
     %>
-    <p style="color: red">There is no book to remove</p>
+    <p style="color: red">There is no borrowing to unassign</p>
     <%}else{%>
-    Books
-    <select name="book_id">
-        <% int i = 0; for(String[] book : bookData){ %>
-        <option value="<%=i%>" name="<%=i%>"><%=book[0]%></option>
+    Borrowing ID, Book ID, User ID
+    <select name="borrowing_id">
+        <% int i = 0; for(String[] item : itemData){ %>
+        <option value="<%=i%>" name="<%=i%>"><%=item[0] + ", " + item[1] + ", " + item[2] %></option>
         <%++i; }%>
     </select>
-    <input type="submit" value="Remove"/>
+    <input type="submit" value="Unassign"/>
     <%}%>
 </form>
 </body>

@@ -374,4 +374,31 @@ public class AppController
         }
         return "redirect:/index";
     }
+
+    @GetMapping("/manuallyunassign")
+    public String manuallyUnassignGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
+        {
+            model.addAttribute("itemData",service.getBorrowingInfoForUnassigning().toArray(new String[0][3]));
+            return "manuallyunassign";
+        }
+        return "redirect:/index";
+    }
+
+    @PostMapping("/manuallyunassign")
+    public String manuallyUnassignPost(ModelMap model, @RequestParam String borrowing_id)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
+        {
+            service.unassignBook(borrowing_id);
+        }
+        return "redirect:/index";
+    }
 }
