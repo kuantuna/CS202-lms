@@ -131,8 +131,8 @@ public class Services
                         String[] topic_ids, String[] author_ids)
     {
         connection.update("INSERT INTO Book (title, publisher_id, borrowed_times, publication_date," +
-                " is_available, is_requested, remove_requested, is_exist) " +
-                "VALUE (?, ?, 0, ?, true, false, false, true)", new Object[]{title, publisherID, publicationDate
+                " is_available, is_requested, requester_id, remove_requested, is_exist) " +
+                "VALUE (?, ?, 0, ?, true, false, null, false, true)", new Object[]{title, publisherID, publicationDate
                     });
 
         List<String> response =  connection.queryForList(
@@ -232,7 +232,7 @@ public class Services
                           String[] author_ids, String publisherId)
     {
         connection.update("INSERT INTO Book (title, publisher_id, publication_date, is_available, is_requested," +
-                "remove_requested, is_exist) VALUE (?, ?, ?, 1, 0, 0, 0)",
+                "requester_id, remove_requested, is_exist) VALUE (?, ?, ?, 1, 0, null, 0, 0)",
                 new Object[]{title, publisherId, publication_date});
 
         List<String> response =  connection.queryForList(

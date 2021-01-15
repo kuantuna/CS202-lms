@@ -24,7 +24,7 @@ INSERT INTO Book(title, publisher_id, borrowed_times, publication_date, is_avail
 VALUES("Solar Eclipse of the Heart", 2, 1, '2006-05-08 12:35:29.123', true, false, false, true),
 ("Zodiac Light", 2, 0, '2005-05-08 12:35:29.123', false, false, false, false),
 ("The Woman in the West", 2, 2, '2004-05-08 12:35:29.123', true, false, false, true),
-("Death of the Invisible Falcon", 6, 1, '2003-05-08 12:35:29.123', false, true, false, false);
+("Death of the Invisible Falcon", 6, 1, '2003-05-08 12:35:29.123', false, true, false, true);
 
 INSERT INTO Borrowing(book_id, user_id, reserve_date, return_date)
 VALUES(1, 3, '2007-05-08 12:35:29.123', '2007-06-08 12:35:29.123'), (3, 4, '2007-07-08 12:35:29.123', '2007-08-08 12:35:29.123'),

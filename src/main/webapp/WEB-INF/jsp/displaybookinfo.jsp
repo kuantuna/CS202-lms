@@ -1,3 +1,5 @@
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.apache.tomcat.util.buf.StringUtils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -5,6 +7,7 @@
 </head>
 <body>
 <%
+    String[][] data = (String[][]) session.getAttribute("itemData");
     String privilegeLevel = (String) session.getAttribute("level");
     if(privilegeLevel.equals("LibraryManager")) {
 %>
@@ -27,26 +30,42 @@
 </header>
 <table border="1">
     <tr>
-        <th>Book ID</th><th>Title</th><th>Publisher ID</th><th>Publisher Name</th><th>First Name</th><th>Last Name</th>
+        <th>Book ID</th><th>Title</th><th>Publisher ID</th><th>Publisher Name</th><th>Author Name</th>
         <th>Topic Name</th><th>Genre Name</th><th>Publication Date</th><th>Availability Status</th>
         <th>Is Requested</th><th>Remove Requested</th><th>Add Requested</th><th>Borrowed Times</th>
     </tr>
     <%
-        String[][] data = (String[][]) session.getAttribute("itemData");
+        int temp = 0;
         for(String[] item : data)
         {
+            if(temp==Integer.parseInt(item[0])){ }
+            else{
+                temp = Integer.parseInt(item[0]);
+                ArrayList<String> genres = new ArrayList<>();
+                ArrayList<String> topics = new ArrayList<>();
+                ArrayList<String> authors = new ArrayList<>();
+                for(String[] it : data){
+                    if(item[0].equals(it[0])){
+                        if(!genres.contains(" "+it[7])){ genres.add(" "+it[7]); }
+                        if(!topics.contains(" "+it[6])){ topics.add(" "+it[6]); }
+                        if(!authors.contains(" "+it[4]+" "+it[5])){ authors.add(" "+it[4]+" "+it[5]); }
+                    }
+                }
     %>
     <tr>
         <td><%= item[0] %></td> <td><%= item[1] %></td> <td><%= item[2] %></td>  <td><%= item[3] %></td>
-        <td><%= item[4] %></td><td> <%= item[5] %></td>
-        <td><%= item[6] %></td> <td><%= item[7] %></td> <td><%=item[8]%></td>
+        <td><%= StringUtils.join(authors, ',') %></td>
+        <td><%= StringUtils.join(topics, ',') %></td> <td><%= StringUtils.join(genres, ',') %></td>
+        <td><%=item[8]%></td>
         <td><%= item[9].equals("1") ? "Available" : "Not Available" %></td>
         <%= item[10].equals("1") ? "<td>Requested</td>" : "<td>Not Requested</td>" %>
         <%= item[11].equals("1") ? "<td>Remove Requested</td>" : "<td>-</td>" %>
         <%= item[12].equals("1") ? "<td>-</td>" : "<td>Add Requested</td>" %>
         <td><%=item[13]%></td>
     </tr>
-    <%  } %>
+    <%
+            }
+        } %>
 
 </table>
 <%
@@ -67,28 +86,42 @@
 </header>
 <table border="1">
     <tr>
-        <th>Book ID</th><th>Title</th><th>Publisher Name</th><th>Author Name</th><th>Author Surname</th>
+        <th>Book ID</th><th>Title</th><th>Publisher Name</th><th>Author Name</th>
         <th>Topic Name</th><th>Genre Name</th><th>Publication Date</th><th>Availability Status</th>
         <th>Is Requested</th><th>Remove Requested</th><th>Add Requested</th><th>Borrowed Times</th>
     </tr>
     <%
-        String[][] data = (String[][]) session.getAttribute("itemData");
+        int temp = 0;
         for(String[] item : data)
         {
-            if(item[12].equals("0") && !(session.getAttribute("userId").toString().equals(item[2]))){ }
+            if(temp==Integer.parseInt(item[0])){ }
             else{
+                temp = Integer.parseInt(item[0]);
+                if(item[12].equals("0") && !(session.getAttribute("userId").toString().equals(item[2]))){  }
+                else{
+                    ArrayList<String> genres = new ArrayList<>();
+                    ArrayList<String> topics = new ArrayList<>();
+                    ArrayList<String> authors = new ArrayList<>();
+                    for(String[] it : data){
+                        if(item[0].equals(it[0])){
+                            if(!genres.contains(" "+it[7])){ genres.add(" "+it[7]); }
+                            if(!topics.contains(" "+it[6])){ topics.add(" "+it[6]); }
+                            if(!authors.contains(" "+it[4]+" "+it[5])){ authors.add(" "+it[4]+" "+it[5]); }
+                        }
+                    }
     %>
     <tr>
         <td><%= item[0] %></td> <td><%= item[1] %></td> <td><%= item[3] %></td>
-        <td><%= item[4] %></td> <td> <%= item[5] %></td>
-        <td><%= item[6] %></td> <td><%= item[7] %></td> <td><%=item[8]%></td>
+        <td><%= StringUtils.join(authors, ',') %></td>
+        <td><%= StringUtils.join(topics, ',') %></td> <td><%= StringUtils.join(genres, ',') %></td>
+        <td><%=item[8]%></td>
         <td><%= item[9].equals("1") ? "Available" : "Not Available" %></td>
         <%= item[10].equals("1") ? "<td>Requested</td>" : "<td>Not Requested</td>" %>
         <%= item[11].equals("1") ? "<td>Remove Requested</td>" : "<td>-</td>" %>
         <%= item[12].equals("1") ? "<td>-</td>" : "<td>Add Requested</td>" %>
         <%= session.getAttribute("userId").toString().equals(item[2]) ? "<td>" + item[13] + "</td>" : "<td>-</td>" %>
     </tr>
-    <%
+    <%          }
             }
         }
     %>
@@ -109,28 +142,42 @@
 </header>
 <table border="1">
     <tr>
-        <th>Book ID</th><th>Title</th><th>Publisher Name</th><th>Author Name</th><th>Author Surname</th>
+        <th>Book ID</th><th>Title</th><th>Publisher Name</th><th>Author Name</th>
         <th>Topic Name</th><th>Genre Name</th><th>Publication Date</th><th>Availability Status</th>
         <th>Is Requested</th>
     </tr>
     <%
-        String[][] data = (String[][]) session.getAttribute("itemData");
+        int temp = 0;
         for(String[] item : data)
         {
-            if(item[12].equals("0")){ }
-            else
-            {
+            if(temp==Integer.parseInt(item[0])){ }
+            else{
+                temp = Integer.parseInt(item[0]);
+                if(item[12].equals("0")){  }
+                else{
+                    ArrayList<String> genres = new ArrayList<>();
+                    ArrayList<String> topics = new ArrayList<>();
+                    ArrayList<String> authors = new ArrayList<>();
+                    for(String[] it : data){
+                        if(item[0].equals(it[0])){
+                            if(!genres.contains(" "+it[7])){ genres.add(" "+it[7]); }
+                            if(!topics.contains(" "+it[6])){ topics.add(" "+it[6]); }
+                            if(!authors.contains(" "+it[4]+" "+it[5])){ authors.add(" "+it[4]+" "+it[5]); }
+                        }
+                    }
     %>
     <tr>
         <td><%= item[0] %></td> <td><%= item[1] %></td> <td><%= item[3] %></td>
-        <td><%= item[4] %></td> <td> <%= item[5] %></td>
-        <td><%= item[6] %></td> <td><%= item[7] %></td> <td><%=item[8]%></td>
+        <td><%= StringUtils.join(authors, ',') %></td>
+        <td><%= StringUtils.join(topics, ',') %></td> <td><%= StringUtils.join(genres, ',') %></td>
+        </td> <td><%=item[8]%></td>
         <td><%= item[9].equals("1") ? "Available" : "Not Available" %></td>
         <%= item[10].equals("1") ? "<td>Requested</td>" : "<td>Not Requested</td>" %>
     </tr>
     <%
             }
         }
+    }
     %>
 </table>
 <%}%>
