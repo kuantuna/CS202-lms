@@ -48,15 +48,17 @@ CREATE TABLE Book(
     publication_date datetime not null,
     is_available boolean not null,
     is_requested boolean not null,
+    requester_id int,
     remove_requested boolean not null,
     is_exist boolean not null,
     PRIMARY KEY(book_id),
     FOREIGN KEY(publisher_id) REFERENCES Publisher(user_id),
     CONSTRAINT check_is_requested
     CHECK( is_requested = CASE WHEN is_available = true THEN false END ),
+    CONSTRAINT check_requester_id
+    CHECK( requester_id = CASE WHEN is_requested = false THEN null END ),
     CONSTRAINT check_is_remove_requested
     CHECK( remove_requested = CASE WHEN is_exist = false THEN false END )
-    /* Kontrol et */
 );
 
 CREATE TABLE Borrowing(

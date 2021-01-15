@@ -317,4 +317,31 @@ public class AppController
         }
         return "redirect:/index";
     }
+
+    @GetMapping("returnbook")
+    public String returnBookGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("RegularUser"))
+        {
+            model.addAttribute("bookData",service.getUserBorrowing(userId).toArray(new String[0][2]));
+            return "returnbook";
+        }
+        return "redirect:/index";
+    }
+
+    @PostMapping("returnbook")
+    public String returnBookPost(ModelMap model, @RequestParam String book_id)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("RegularUser"))
+        {
+            service.returnBook(book_id, userId);
+        }
+        return "redirect:/index";
+    }
 }

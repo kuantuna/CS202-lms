@@ -137,6 +137,8 @@
         |
         <a href="/displayborrowings">Display Borrowings</a>
         |
+        <a href="/returnbook">Return a Book</a>
+        |
         <a href="/logout">Logout</a>
     </p>
 </header>

@@ -295,4 +295,59 @@ public class Services
                         "VALUE (?, ?, ?, null)",
                 new Object[]{bookId, user_id, dateString});
     }
+
+    public List<String[]> getUserBorrowing(int user_id)
+    {
+        List<String[]> response = connection.query("SELECT DISTINCT book_id FROM Book " +
+                        "NATURAL JOIN Borrowing WHERE return_date is null AND user_id = " + user_id
+                ,(row, index) -> { return new String[]{ row.getString("book_id")
+                };
+        });
+        return response;
+    }
+
+    public void returnBook(String book_id, int user_id)
+    {
+        System.out.println("User ID: " + user_id);
+        System.out.println("Book ID: " + book_id);
+        List<String> respRealBookId = connection.queryForList("SELECT DISTINCT book_id FROM Book " +
+                "NATURAL JOIN Borrowing WHERE return_date is null " +
+                        "AND user_id = "+ user_id+ " LIMIT 1 OFFSET " + book_id, String.class);
+        String real_book_id = respRealBookId.get(0);
+        List<String> response1 = connection.queryForList(
+                "SELECT reserve_date FROM Borrowing WHERE user_id = ? AND book_id = ? AND return_date is null",
+                String.class, user_id, real_book_id);
+        String reserve_date = response1.get(0);
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String returnDate = sdf.format(date);
+        connection.update("UPDATE Borrowing SET return_date = ? " +
+                "WHERE user_id = ? AND book_id = ? AND return_date is null",
+                new Object[]{returnDate, user_id, real_book_id});
+        connection.update("UPDATE RegularUser " +
+                "SET penalty_score = IF(DATEDIFF('" + returnDate + "', '" + reserve_date + "')>14, " +
+                "penalty_score + DATEDIFF('" + returnDate + "', '" + reserve_date + "') , penalty_score) " +
+                "WHERE user_id = ?", new Object[]{user_id});
+        List<String> response2 = connection.queryForList("SELECT is_requested FROM Book WHERE book_id = ?",
+                String.class, real_book_id);
+        String is_requested = response2.get(0);
+
+        // is_requested = false
+        if(is_requested.equals("0"))
+        {
+            connection.update("UPDATE Book SET is_available = true WHERE book_id = ?",
+                    new Object[]{real_book_id});
+        }
+
+        // is_requested = true
+        else
+        {
+            List<String> response3 = connection.queryForList("SELECT requester_id FROM Book WHERE book_id = ?",
+                    String.class, real_book_id);
+            String requester_id = response3.get(0);
+            borrowBook(String.valueOf(Integer.parseInt(real_book_id)-1), Integer.parseInt(requester_id));
+            connection.update("UPDATE Book SET borrowed_times = borrowed_times+1, requester_id = null, is_requested = false " +
+                    "WHERE book_id = " + real_book_id);
+        }
+    }
 }
