@@ -143,7 +143,7 @@ public class AppController
         if(service.getPrivilegeLevel(userId).equals("LibraryManager") ||
                 service.getPrivilegeLevel(userId).equals("RegularUser")) {
             List<String[]> data = service.displayBorrowings();
-            model.addAttribute("itemData",data.toArray(new String[0][7]));
+            model.addAttribute("itemData", data.toArray(new String[0][7]));
             return "displayborrowings";
         }
         return "redirect:/login";
@@ -270,8 +270,8 @@ public class AppController
         int userId = service.getUserId(username);
         if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
         {
-            List<String[]> data = service.getBookIds();
-            model.addAttribute("bookData",data.toArray(new String[0][1]));
+            List<String[]> data = service.getBookInfos();
+            model.addAttribute("bookData",data.toArray(new String[0][2]));
             return "removebook";
         }
         return "redirect:/index";
@@ -286,6 +286,34 @@ public class AppController
         if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
         {
             service.removeBook(book_id);
+        }
+        return "redirect:/index";
+    }
+
+    @GetMapping("/borrowbook")
+    public String borrowBookGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("RegularUser"))
+        {
+            List<String[]> data = service.getBookInfos();
+            model.addAttribute("bookData",data.toArray(new String[0][2]));
+            return "borrowbook";
+        }
+        return "redirect:/index";
+    }
+
+    @PostMapping("/borrowbook")
+    public String borrowBookPost(ModelMap model, @RequestParam String book_id)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("RegularUser"))
+        {
+            service.borrowBook(book_id, userId);
         }
         return "redirect:/index";
     }

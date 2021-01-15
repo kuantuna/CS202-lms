@@ -130,9 +130,6 @@ public class Services
     public void addBook(String title, String publisherID, String publicationDate, String[] genre_ids,
                         String[] topic_ids, String[] author_ids)
     {
-        /*Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String dateString = sdf.format(date);*/
         connection.update("INSERT INTO Book (title, publisher_id, borrowed_times, publication_date," +
                 " is_available, is_requested, remove_requested, is_exist) " +
                 "VALUE (?, ?, 0, ?, true, false, false, true)", new Object[]{title, publisherID, publicationDate
@@ -261,10 +258,11 @@ public class Services
         }
     }
 
-    public List<String[]> getBookIds()
+    public List<String[]> getBookInfos()
     {
-        List<String[]> response = connection.query("SELECT book_id FROM Book"
-                ,(row, index) -> { return new String[]{ row.getString("book_id")
+        List<String[]> response = connection.query("SELECT book_id, is_available FROM Book"
+                ,(row, index) -> { return new String[]{ row.getString("book_id"),
+                        row.getString("is_available")
                 };
                 });
         return response;
@@ -283,5 +281,18 @@ public class Services
                 new Object[]{bookId});
         connection.update("DELETE FROM Book WHERE book_id = ?",
                 new Object[]{bookId});
+    }
+
+    public void borrowBook(String book_id, int user_id)
+    {
+        int bookId = Integer.parseInt(book_id) + 1;
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = sdf.format(date);
+        connection.update("UPDATE Book SET is_available = 0 WHERE book_id = ?",
+                new Object[]{bookId});
+        connection.update("INSERT INTO Borrowing (book_id, user_id, reserve_date, return_date) " +
+                        "VALUE (?, ?, ?, null)",
+                new Object[]{bookId, user_id, dateString});
     }
 }

@@ -58,6 +58,8 @@
             |
             <a href="/displayborrowings">Display Borrowings</a>
             |
+            <a href="/borrowbook">Borrow a Book</a>
+            |
             <a href="/logout">Logout</a>
         </p>
     </header>
