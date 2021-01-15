@@ -14,7 +14,7 @@ import java.util.List;
 
 @Controller
 @SessionAttributes({"username", "level", "itemData", "userId", "genreData", "topicData", "authorData",
-        "publisherData", "bookData"})
+        "publisherData", "bookData", "userData"})
 public class AppController
 {
     @Autowired
@@ -96,6 +96,7 @@ public class AppController
         request.removeAttribute("authorData", WebRequest.SCOPE_SESSION);
         request.removeAttribute("publisherData", WebRequest.SCOPE_SESSION);
         request.removeAttribute("bookData", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("userData", WebRequest.SCOPE_SESSION);
         return "redirect:/login";
     }
 
@@ -318,7 +319,7 @@ public class AppController
         return "redirect:/index";
     }
 
-    @GetMapping("returnbook")
+    @GetMapping("/returnbook")
     public String returnBookGet(ModelMap model)
     {
         String username = (String) model.get("username");
@@ -326,13 +327,14 @@ public class AppController
         int userId = service.getUserId(username);
         if(service.getPrivilegeLevel(userId).equals("RegularUser"))
         {
-            model.addAttribute("bookData",service.getUserBorrowing(userId).toArray(new String[0][2]));
+            model.addAttribute("bookData",service.getUserBorrowing(userId).toArray(new String[0][1]));
+            // TEST ET
             return "returnbook";
         }
         return "redirect:/index";
     }
 
-    @PostMapping("returnbook")
+    @PostMapping("/returnbook")
     public String returnBookPost(ModelMap model, @RequestParam String book_id)
     {
         String username = (String) model.get("username");
@@ -341,6 +343,34 @@ public class AppController
         if(service.getPrivilegeLevel(userId).equals("RegularUser"))
         {
             service.returnBook(book_id, userId);
+        }
+        return "redirect:/index";
+    }
+
+    @GetMapping("/manuallyassign")
+    public String manuallyAssignGet(ModelMap model)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
+        {
+            model.addAttribute("bookData",service.getBookIdsForAssinging().toArray(new String[0][1]));
+            model.addAttribute("userData",service.getUserIdsForAssinging().toArray(new String[0][1]));
+            return "manuallyassign";
+        }
+        return "redirect:/index";
+    }
+
+    @PostMapping("/manuallyassign")
+    public String manuallyAssignPost(ModelMap model, @RequestParam String user_id, @RequestParam String book_id)
+    {
+        String username = (String) model.get("username");
+        if(username == null) { return "redirect:/login"; }
+        int userId = service.getUserId(username);
+        if(service.getPrivilegeLevel(userId).equals("LibraryManager"))
+        {
+            service.assignBook(book_id, user_id);
         }
         return "redirect:/index";
     }

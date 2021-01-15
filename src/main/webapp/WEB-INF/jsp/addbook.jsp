@@ -18,6 +18,8 @@
         |
         <a href="/removebook">Remove Book</a>
         |
+        <a href="/manuallyassign">Manually Assign</a>
+        |
         <a href="/logout">Logout</a>
     </p>
 </header>

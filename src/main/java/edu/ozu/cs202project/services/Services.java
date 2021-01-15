@@ -291,9 +291,14 @@ public class Services
         String dateString = sdf.format(date);
         connection.update("UPDATE Book SET is_available = 0 WHERE book_id = ?",
                 new Object[]{bookId});
+        System.out.println(bookId);
+        System.out.println(user_id);
+        System.out.println(dateString);
         connection.update("INSERT INTO Borrowing (book_id, user_id, reserve_date, return_date) " +
                         "VALUE (?, ?, ?, null)",
                 new Object[]{bookId, user_id, dateString});
+        connection.update("UPDATE Book SET borrowed_times = borrowed_times+1, requester_id = null," +
+                " is_requested = false WHERE book_id = " + bookId);
     }
 
     public List<String[]> getUserBorrowing(int user_id)
@@ -308,8 +313,6 @@ public class Services
 
     public void returnBook(String book_id, int user_id)
     {
-        System.out.println("User ID: " + user_id);
-        System.out.println("Book ID: " + book_id);
         List<String> respRealBookId = connection.queryForList("SELECT DISTINCT book_id FROM Book " +
                 "NATURAL JOIN Borrowing WHERE return_date is null " +
                         "AND user_id = "+ user_id+ " LIMIT 1 OFFSET " + book_id, String.class);
@@ -346,8 +349,37 @@ public class Services
                     String.class, real_book_id);
             String requester_id = response3.get(0);
             borrowBook(String.valueOf(Integer.parseInt(real_book_id)-1), Integer.parseInt(requester_id));
-            connection.update("UPDATE Book SET borrowed_times = borrowed_times+1, requester_id = null, is_requested = false " +
-                    "WHERE book_id = " + real_book_id);
         }
+    }
+
+    public List<String[]> getBookIdsForAssinging()
+    {
+        List<String[]> response = connection.query("SELECT book_id FROM Book " +
+                        "WHERE is_exist = true AND is_available = true"
+                ,(row, index) -> { return new String[]{ row.getString("book_id")
+                };
+        });
+        return response;
+    }
+
+    public List<String[]> getUserIdsForAssinging()
+    {
+        List<String[]> response = connection.query("SELECT user_id FROM RegularUser "
+                ,(row, index) -> { return new String[]{ row.getString("user_id")
+                };
+                });
+        return response;
+    }
+
+    public void assignBook(String book_id, String user_id)
+    {
+        List<String> response =  connection.queryForList(
+                "SELECT user_id FROM RegularUser LIMIT 1 OFFSET "
+                        + user_id, String.class);
+        String real_user_id = response.get(0);
+        List<String> response1 = connection.queryForList("SELECT book_id FROM Book " +
+                "WHERE is_exist = true AND is_available = true LIMIT 1 OFFSET " + book_id, String.class);
+        String real_book_id = response1.get(0);
+        borrowBook(String.valueOf(Integer.parseInt(real_book_id)-1), Integer.parseInt(real_user_id));
     }
 }
