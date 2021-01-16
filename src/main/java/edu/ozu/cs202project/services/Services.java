@@ -511,4 +511,57 @@ public class Services
                 String.class);
         return response.get(0);
     }
+
+    public List<String[]> infoOfUsersWhoBorrowedMostBorrowedBook()
+    {
+        List<String[]> response = connection.query("SELECT DISTINCT RegularUser.user_id, RegularUser.first_name, RegularUser.last_name " +
+                        "FROM (SELECT * FROM Book WHERE (SELECT MAX(borrowed_times) max_bor FROM Book) = borrowed_times) AS b " +
+                        "LEFT JOIN Borrowing ON b.book_id = Borrowing.book_id LEFT JOIN RegularUser ON Borrowing.user_id = RegularUser.user_id ORDER BY RegularUser.user_id",
+                (row, index) -> { return new String[]{ row.getString("user_id"),
+                        row.getString("first_name"), row.getString("last_name")
+                };
+        });
+        return response;
+    }
+
+    public List<String[]> countOfBookOverdue()
+    {
+        List<String[]> response = connection.query("SELECT book_id, Book.title, " +
+                "SUM(CASE WHEN DATEDIFF(return_date, reserve_date)>14 THEN 1 ELSE 0 END) AS due FROM Book " +
+                "NATURAL JOIN Borrowing WHERE return_date is not null GROUP BY book_id",
+                (row, index) -> { return new String[]{ row.getString("book_id"),
+                        row.getString("title"), row.getString("due")
+                };
+        });
+        return response;
+    }
+
+    public String getNumberOfOverdueBooksUser(int user_id)
+    {
+        List<String> response = connection.queryForList("SELECT SUM(CASE WHEN DATEDIFF(sq1.ret_date, sq1.reserve_date)>14 THEN 1 ELSE 0 END) AS overdue " +
+                        "FROM (SELECT reserve_date, IF(return_date is null, NOW(), return_date) AS ret_date FROM Borrowing " +
+                        "WHERE user_id = "+ user_id +") AS sq1",
+                String.class);
+        return response.get(0);
+    }
+
+    public String getNumberOfBooksBooked(int user_id)
+    {
+        List<String> response = connection.queryForList("SELECT COUNT(borrowing_id) AS cnt FROM Borrowing WHERE user_id = " + user_id,
+                String.class);
+        return response.get(0);
+    }
+
+    public List<String[]> getFavouriteGenreInfo(int user_id)
+    {
+        List<String[]> response = connection.query("SELECT sq1.genre_id, genre_name, cnt FROM (SELECT COUNT(GenreBook.genre_id) AS cnt," +
+                        " GenreBook.genre_id FROM (SELECT DISTINCT book_id FROM Borrowing WHERE user_id = "+user_id+") AS b_ids " +
+                        "LEFT JOIN GenreBook ON b_ids.book_id = GenreBook.book_id GROUP BY GenreBook.genre_id) AS sq1" +
+                        " LEFT JOIN Genre ON sq1.genre_id = Genre.genre_id ORDER BY cnt DESC",
+                (row, index) -> { return new String[]{ row.getString("genre_id"),
+                        row.getString("genre_name"), row.getString("cnt")
+                };
+        });
+        return response;
+    }
 }

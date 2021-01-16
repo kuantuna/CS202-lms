@@ -109,6 +109,46 @@
 </table>
 <%}%>
 
+<%
+    String[][] infoOfUsersWhoBorrowedMostBorrowedBook = (String[][]) session.getAttribute("infoOfUsersWhoBorrowedMostBorrowedBook");
+    if(mostBorrowedPublishers==null){ }
+    else{
+%>
+<h1>Information of Users Who Borrowed the Most Borrowed Books:</h1><br>
+<table border="1">
+    <tr>
+        <th>User ID</th><th>First Name</th><th>Last Name</th>
+    </tr>
+    <%
+        for(String[] item : infoOfUsersWhoBorrowedMostBorrowedBook){
+    %>
+    <tr>
+        <td><%=item[0]%></td><td><%=item[1]%></td><td><%=item[2]%></td>
+    </tr>
+    <%}%>
+</table>
+<%}%>
+
+<%
+    String[][] countOfBookOverdue = (String[][]) session.getAttribute("countOfBookOverdue");
+    if(countOfBookOverdue==null){ }
+    else{
+%>
+<h1>Count of Book Overdue:</h1><br>
+<table border="1">
+    <tr>
+        <th>Book ID</th><th>Title</th><th>Count</th>
+    </tr>
+    <%
+        for(String[] item : countOfBookOverdue){
+    %>
+    <tr>
+        <td><%=item[0]%></td><td><%=item[1]%></td><td><%=item[2]%></td>
+    </tr>
+    <%}%>
+</table>
+<%}%>
+
 <% }else if(privilegeLevel.equals("RegularUser")){ %>
 <header>
     <p>
@@ -127,6 +167,58 @@
         <a href="/logout">Logout</a>
     </p>
 </header>
+<%
+    String numberOfOverdueBooks = (String) session.getAttribute("numberOfOverdueBooks");
+    if(numberOfOverdueBooks==null){ }
+    else{
+%>
+<h1>Total number of books that are and were overdue:</h1><br>
+<table border="1">
+    <tr>
+        <th>Count</th>
+    </tr>
+    <tr>
+        <td><%=numberOfOverdueBooks%></td>
+    </tr>
+</table>
+<%}%>
+
+<%
+    String numberOfBooksBooked = (String) session.getAttribute("numberOfBooksBooked");
+    if(numberOfBooksBooked==null){ }
+    else{
+%>
+<h1>Total number of books that are booked:</h1><br>
+<table border="1">
+    <tr>
+        <th>Count</th>
+    </tr>
+    <tr>
+        <td><%=numberOfBooksBooked%></td>
+    </tr>
+</table>
+<%}%>
+
+<%
+    String[][] favouriteGenreInfo = (String[][]) session.getAttribute("favouriteGenreInfo");
+    if(favouriteGenreInfo==null){ }
+    else{
+%>
+<h1>Count of Book Overdue:</h1><br>
+<table border="1">
+    <tr>
+        <th>Genre ID</th><th>Genre Name</th><th>Count</th>
+    </tr>
+    <%
+        for(String[] item : favouriteGenreInfo){
+    %>
+    <tr>
+        <td><%=item[0]%></td><td><%=item[1]%></td><td><%=item[2]%></td>
+    </tr>
+    <%}%>
+</table>
+<%}%>
+
 <% } %>
 </body>
 </html>

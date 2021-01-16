@@ -15,7 +15,8 @@ import java.util.List;
 @Controller
 @SessionAttributes({"username", "level", "itemData", "userId", "genreData", "topicData", "authorData",
         "publisherData", "bookData", "userData", "mostBorrowedGenres", "mostBorrowedBooks3m", "mostBorrowedPublishers",
-        "numberOfOverdueBooks"})
+        "numberOfOverdueBooks", "infoOfUsersWhoBorrowedMostBorrowedBook", "countOfBookOverdue", "numberOfBooksBooked",
+        "favouriteGenreInfo"})
 public class AppController
 {
     @Autowired
@@ -102,6 +103,10 @@ public class AppController
         request.removeAttribute("mostBorrowedBooks3m", WebRequest.SCOPE_SESSION);
         request.removeAttribute("mostBorrowedPublishers", WebRequest.SCOPE_SESSION);
         request.removeAttribute("numberOfOverdueBooks", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("infoOfUsersWhoBorrowedMostBorrowedBook", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("countOfBookOverdue", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("numberOfBooksBooked", WebRequest.SCOPE_SESSION);
+        request.removeAttribute("favouriteGenreInfo", WebRequest.SCOPE_SESSION);
         return "redirect:/login";
     }
 
@@ -434,10 +439,15 @@ public class AppController
             model.addAttribute("mostBorrowedBooks3m", service.lmMostBorrowedBooks3m().toArray(new String[0][2]));
             model.addAttribute("mostBorrowedPublishers", service.mostBorrowedPublisher().toArray(new String[0][2]));
             model.addAttribute("numberOfOverdueBooks", service.getNumberOfOverdueBooks());
+            model.addAttribute("infoOfUsersWhoBorrowedMostBorrowedBook", service.infoOfUsersWhoBorrowedMostBorrowedBook().toArray(new String[0][3]));
+            model.addAttribute("countOfBookOverdue", service.countOfBookOverdue().toArray(new String[0][3]));
             return "statistics";
         }
         else if(service.getPrivilegeLevel(userId).equals("RegularUser"))
         {
+            model.addAttribute("numberOfOverdueBooks", service.getNumberOfOverdueBooksUser(userId));
+            model.addAttribute("numberOfBooksBooked", service.getNumberOfBooksBooked(userId));
+            model.addAttribute("favouriteGenreInfo", service.getFavouriteGenreInfo(userId).toArray(new String[0][3]));
             return "statistics";
         }
         return "redirect:/index";
