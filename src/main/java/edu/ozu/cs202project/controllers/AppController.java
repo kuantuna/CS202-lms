@@ -171,7 +171,7 @@ public class AppController
     }
     // TAMAM
 
-    @GetMapping("addbook")
+    @GetMapping("/addbook")
     public String addBookGet(ModelMap model)
     {
         String username = (String) model.get("username");
@@ -191,7 +191,7 @@ public class AppController
         return "redirect:/index";
     }
 
-    @PostMapping("addbook")
+    @PostMapping("/addbook")
     public String addBookPost(ModelMap model, @RequestParam String publisher_id, @RequestParam String title,
                               @RequestParam String publication_date,  @RequestParam String genre_id[], @RequestParam String[] topic_id,
                               @RequestParam String[] author_id)
@@ -210,7 +210,7 @@ public class AppController
     // DEVAMINA BAKCAZ
 
 
-    @GetMapping("addrequest")
+    @GetMapping("/addrequest")
     public String addRequestGet(ModelMap model)
     {
         String username = (String) model.get("username");
@@ -243,7 +243,7 @@ public class AppController
         return "redirect:/index";
     }
 
-    @GetMapping("removerequest")
+    @GetMapping("/removerequest")
     public String removeRequestGet(ModelMap model)
     {
         String username = (String) model.get("username");

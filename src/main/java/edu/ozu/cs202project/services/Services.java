@@ -162,8 +162,7 @@ public class Services
     public String getRealUserId(String publisher_id)
     {
         List<String> response =  connection.queryForList(
-                "SELECT user_id FROM Publisher LIMIT 1 OFFSET "
-                        + publisher_id, String.class);
+                "SELECT user_id FROM Publisher LIMIT 1 OFFSET ? ", String.class, Integer.valueOf(publisher_id));
         return response.get(0);
     }
     //
@@ -171,10 +170,10 @@ public class Services
     public List<String[]> booksForRemoveRequest(String userId)
     {
         List<String[]> response = connection.query("SELECT title, book_id FROM Book WHERE remove_requested = 0 " +
-                        "AND is_exist = 1 AND publisher_id = " + userId
+                        "AND is_exist = 1 AND publisher_id = ?"
         ,(row, index) -> { return new String[]{
                         row.getString("title"), row.getString("book_id")
-                };});
+                };}, userId);
         return response;
     }
 
@@ -189,7 +188,7 @@ public class Services
             }
             ++count;
         }
-        connection.update("UPDATE Book SET remove_requested = 1 WHERE book_id = " + real_book_id);
+        connection.update("UPDATE Book SET remove_requested = 1 WHERE book_id = ?", new Object[]{real_book_id});
     }
 
     public List<String[]> getPublishers()
@@ -197,7 +196,7 @@ public class Services
         List<String[]> response = connection.query("SELECT publisher_name FROM Publisher"
                 ,(row, index) -> { return new String[]{ row.getString("publisher_name")
                 };
-                });
+        });
         return response;
     }
 
@@ -206,7 +205,7 @@ public class Services
         List<String[]> response = connection.query("SELECT genre_name FROM Genre"
                 ,(row, index) -> { return new String[]{ row.getString("genre_name")
                 };
-                });
+        });
         return response;
     }
 
@@ -215,7 +214,7 @@ public class Services
         List<String[]> response = connection.query("SELECT topic_name FROM Topic"
                 ,(row, index) -> { return new String[]{ row.getString("topic_name")
                 };
-                });
+        });
         return response;
     }
 
@@ -225,7 +224,7 @@ public class Services
                 ,(row, index) -> { return new String[]{ row.getString("first_name"),
                         row.getString("last_name")
                 };
-                });
+        });
         return response;
     }
 
@@ -296,24 +295,24 @@ public class Services
                         "VALUE (?, ?, ?, null)",
                 new Object[]{bookId, user_id, dateString});
         connection.update("UPDATE Book SET borrowed_times = borrowed_times+1, requester_id = null," +
-                " is_requested = false WHERE book_id = " + bookId);
+                " is_requested = false WHERE book_id = ?", new Object[]{bookId});
     }
 
     public List<String[]> getUserBorrowing(int user_id)
     {
         List<String[]> response = connection.query("SELECT DISTINCT book_id FROM Book " +
-                        "NATURAL JOIN Borrowing WHERE return_date is null AND user_id = " + user_id
+                        "NATURAL JOIN Borrowing WHERE return_date is null AND user_id = ?"
                 ,(row, index) -> { return new String[]{ row.getString("book_id")
                 };
-        });
+        }, user_id);
         return response;
     }
 
     public void returnBook(String book_id, int user_id)
     {
         List<String> respRealBookId = connection.queryForList("SELECT DISTINCT book_id FROM Book " +
-                "NATURAL JOIN Borrowing WHERE return_date is null " +
-                        "AND user_id = "+ user_id+ " LIMIT 1 OFFSET " + book_id, String.class);
+                "NATURAL JOIN Borrowing WHERE return_date is ? " +
+                        "AND user_id = ? LIMIT 1 OFFSET ?", String.class, new Object[]{null ,user_id, Integer.valueOf(book_id)});
         String real_book_id = respRealBookId.get(0);
         List<String> response1 = connection.queryForList(
                 "SELECT reserve_date FROM Borrowing WHERE user_id = ? AND book_id = ? AND return_date is null",
@@ -326,9 +325,9 @@ public class Services
                 "WHERE user_id = ? AND book_id = ? AND return_date is null",
                 new Object[]{returnDate, user_id, real_book_id});
         connection.update("UPDATE RegularUser " +
-                "SET penalty_score = IF(DATEDIFF('" + returnDate + "', '" + reserve_date + "')>14, " +
-                "penalty_score + DATEDIFF('" + returnDate + "', '" + reserve_date + "') , penalty_score) " +
-                "WHERE user_id = ?", new Object[]{user_id});
+                "SET penalty_score = IF(DATEDIFF(?, ?)>14, " +
+                "penalty_score + DATEDIFF(?, ?) , penalty_score) " +
+                "WHERE user_id = ?", new Object[]{returnDate, reserve_date, returnDate, reserve_date, user_id});
         List<String> response2 = connection.queryForList("SELECT is_requested FROM Book WHERE book_id = ?",
                 String.class, real_book_id);
         String is_requested = response2.get(0);
@@ -376,7 +375,7 @@ public class Services
                         + user_id, String.class);
         String real_user_id = response.get(0);
         List<String> response1 = connection.queryForList("SELECT book_id FROM Book " +
-                "WHERE is_exist = true AND is_available = true LIMIT 1 OFFSET " + book_id, String.class);
+                "WHERE is_exist = true AND is_available = true LIMIT 1 OFFSET ?", String.class, Integer.valueOf(book_id));
         String real_book_id = response1.get(0);
         borrowBook(String.valueOf(Integer.parseInt(real_book_id)-1), Integer.parseInt(real_user_id));
     }
@@ -394,38 +393,32 @@ public class Services
 
     public void unassignBook(String borrowing_id)
     {
-        System.out.println("First borrid: " + borrowing_id);
         List<String> response =  connection.queryForList(
-                "SELECT borrowing_id FROM Borrowing WHERE return_date is null LIMIT 1 OFFSET "
-                        + borrowing_id, String.class);
+                "SELECT borrowing_id FROM Borrowing WHERE return_date is null LIMIT 1 OFFSET ?", String.class, Integer.valueOf(borrowing_id));
         String real_borrowing_id = response.get(0);
-        System.out.println("Real bor id: " + real_borrowing_id);
 
         List<String[]> response1 = connection.query("SELECT book_id, user_id FROM Borrowing " +
-                        "WHERE borrowing_id = " + real_borrowing_id
+                        "WHERE borrowing_id = ?"
                 ,(row, index) -> { return new String[]{ row.getString("book_id"),
                         row.getString("user_id")
                 };
-        });
+        }, Integer.valueOf(real_borrowing_id));
         String real_book_id = response1.get(0)[0];
         String real_user_id = response1.get(0)[1];
-
-        System.out.println("First-> ui" +real_user_id);
-        System.out.println("First-> bi" +real_book_id);
         List<String> response2 = connection.queryForList(
-                "SELECT reserve_date FROM Borrowing WHERE borrowing_id = "+ real_borrowing_id,
-                String.class);
+                "SELECT reserve_date FROM Borrowing WHERE borrowing_id = ?",
+                String.class, Integer.valueOf(real_borrowing_id));
         String reserve_date = response2.get(0);
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String returnDate = sdf.format(date);
         connection.update("UPDATE Borrowing SET return_date = ? " +
-                        "WHERE borrowing_id = " + real_borrowing_id,
-                new Object[]{returnDate});
+                        "WHERE borrowing_id = ?",
+                new Object[]{returnDate, Integer.valueOf(real_borrowing_id)});
         connection.update("UPDATE RegularUser " +
-                "SET penalty_score = IF(DATEDIFF('" + returnDate + "', '" + reserve_date + "')>14, " +
-                "penalty_score + DATEDIFF('" + returnDate + "', '" + reserve_date + "') , penalty_score) " +
-                "WHERE user_id = ?", new Object[]{real_user_id});
+                "SET penalty_score = IF(DATEDIFF(?, ?)>14, " +
+                "penalty_score + DATEDIFF(?, ?) , penalty_score) " +
+                "WHERE user_id = ?", new Object[]{returnDate, reserve_date, returnDate, reserve_date, real_user_id});
         List<String> response3 = connection.queryForList("SELECT is_requested FROM Book WHERE book_id = ?",
                 String.class, real_book_id);
         String is_requested = response3.get(0);
@@ -466,12 +459,12 @@ public class Services
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = sdf.format(date);
         List<String[]> response = connection.query("SELECT Book.title, subq.cnt FROM (SELECT book_id, COUNT(book_id) AS cnt " +
-                        "FROM Borrowing WHERE DATEDIFF('" + dateString + "', reserve_date)<30 GROUP BY book_id " +
+                        "FROM Borrowing WHERE DATEDIFF(?, reserve_date)<90 GROUP BY book_id " +
                         "ORDER BY cnt DESC) AS subq LEFT JOIN Book ON subq.book_id = Book.book_id"
                 ,(row, index) -> { return new String[]{ row.getString("title"),
                         row.getString("cnt")
                 };
-        });
+        }, dateString);
         return response;
     }
 
@@ -485,17 +478,16 @@ public class Services
         for(String[] publisher_id: response)
         {
             List<String[]> resp = connection.query("SELECT publisher_id, SUM(borrowed_times) AS sm " +
-                            "FROM Book WHERE publisher_id=" + publisher_id[0],
+                            "FROM Book WHERE publisher_id= ?",
                     (row, index) -> { return new String[]{ row.getString("publisher_id"), row.getString("sm")
                     };
-            });
+            }, Integer.valueOf(publisher_id[0]));
             r.add(resp.get(0));
         }
         for(String[] item: r)
         {
             List<String> rep =  connection.queryForList(
-                    "SELECT publisher_name FROM Publisher WHERE user_id = "
-                            + item[0], String.class);
+                    "SELECT publisher_name FROM Publisher WHERE user_id = ?", String.class, Integer.valueOf(item[0]));
             item[0]=rep.get(0);
         }
         return r;
@@ -507,8 +499,8 @@ public class Services
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = sdf.format(date);
         List<String> response = connection.queryForList("SELECT COUNT(borrowing_id) FROM Borrowing " +
-                        "WHERE return_date is null AND DATEDIFF('"+ dateString +"', reserve_date)>14",
-                String.class);
+                        "WHERE return_date is null AND DATEDIFF(?, reserve_date)>14",
+                String.class, dateString);
         return response.get(0);
     }
 
@@ -540,28 +532,28 @@ public class Services
     {
         List<String> response = connection.queryForList("SELECT SUM(CASE WHEN DATEDIFF(sq1.ret_date, sq1.reserve_date)>14 THEN 1 ELSE 0 END) AS overdue " +
                         "FROM (SELECT reserve_date, IF(return_date is null, NOW(), return_date) AS ret_date FROM Borrowing " +
-                        "WHERE user_id = "+ user_id +") AS sq1",
-                String.class);
+                        "WHERE user_id = ?) AS sq1",
+                String.class, user_id);
         return response.get(0);
     }
 
     public String getNumberOfBooksBooked(int user_id)
     {
-        List<String> response = connection.queryForList("SELECT COUNT(borrowing_id) AS cnt FROM Borrowing WHERE user_id = " + user_id,
-                String.class);
+        List<String> response = connection.queryForList("SELECT COUNT(borrowing_id) AS cnt FROM Borrowing WHERE user_id = ?",
+                String.class, user_id);
         return response.get(0);
     }
 
     public List<String[]> getFavouriteGenreInfo(int user_id)
     {
         List<String[]> response = connection.query("SELECT sq1.genre_id, genre_name, cnt FROM (SELECT COUNT(GenreBook.genre_id) AS cnt," +
-                        " GenreBook.genre_id FROM (SELECT DISTINCT book_id FROM Borrowing WHERE user_id = "+user_id+") AS b_ids " +
+                        " GenreBook.genre_id FROM (SELECT DISTINCT book_id FROM Borrowing WHERE user_id = ?) AS b_ids " +
                         "LEFT JOIN GenreBook ON b_ids.book_id = GenreBook.book_id GROUP BY GenreBook.genre_id) AS sq1" +
                         " LEFT JOIN Genre ON sq1.genre_id = Genre.genre_id ORDER BY cnt DESC",
                 (row, index) -> { return new String[]{ row.getString("genre_id"),
                         row.getString("genre_name"), row.getString("cnt")
                 };
-        });
+        }, user_id);
         return response;
     }
 }

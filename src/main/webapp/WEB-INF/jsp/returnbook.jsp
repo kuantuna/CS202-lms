@@ -27,7 +27,7 @@
     %>
     <p style="color: red">There is no book to return</p>
     <%}else{%>
-    Books
+    Book ID
     <select name="book_id">
         <% int i = 0; for(String[] book : bookData){ %>
         <option value="<%=i%>" name="<%=i%>"><%=book[0]%></option>
