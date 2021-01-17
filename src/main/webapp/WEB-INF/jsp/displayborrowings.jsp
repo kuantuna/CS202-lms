@@ -64,6 +64,8 @@
         |
         <a href="/displayborrowings">Display Borrowings</a>
         |
+        <a href="/borrowbook">Borrow a Book</a>
+        |
         <a href="/returnbook">Return a Book</a>
         |
         <a href="/statistics">Statistics</a>
